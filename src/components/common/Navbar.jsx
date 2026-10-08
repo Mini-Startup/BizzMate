@@ -12,8 +12,9 @@ export function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      setScrolled(window.scrollY > 80);
     };
+    handleScroll();
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -28,14 +29,16 @@ export function Navbar() {
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 pt-3 sm:pt-4 pointer-events-none">
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 flex justify-center px-4 pt-3 sm:pt-4 transition-all duration-300 pointer-events-none ${
+        scrolled
+          ? "opacity-100 translate-y-0"
+          : "opacity-0 -translate-y-6 pointer-events-none"
+      }`}
+    >
       <nav
         aria-label="Main Navigation"
-        className={`pointer-events-auto w-full max-w-6xl transition-all duration-300 rounded-full px-5 py-2.5 flex items-center justify-between border ${
-          scrolled
-            ? "bg-white/90 backdrop-blur-xl border-slate-200 shadow-lg shadow-slate-900/5"
-            : "bg-white/80 backdrop-blur-md border-slate-200/70 shadow-sm"
-        }`}
+        className="pointer-events-auto w-full max-w-6xl transition-all duration-300 rounded-full px-5 py-2.5 flex items-center justify-between border bg-white/90 backdrop-blur-xl border-slate-200 shadow-lg shadow-slate-900/5"
       >
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
