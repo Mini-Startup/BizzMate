@@ -13,7 +13,7 @@ if (typeof window !== "undefined") {
 }
 
 const MarqueeItem = () => (
-  <div className="flex items-center space-x-12 px-6">
+  <div className="flex items-center space-x-12 px-6 shrink-0">
     <span className="text-slate-600 font-bold">High-Performance Websites</span>
     <span className="text-[#a84bff]">✦</span>
     <span className="text-slate-600 font-bold">Autonomous AI Automations</span>
