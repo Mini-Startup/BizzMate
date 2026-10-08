@@ -239,8 +239,7 @@ const RailToc = ({
   }
 
   const active = Math.max(0, reached - 1)
-  const railColor =
-    "[--rail:color-mix(in_oklab,var(--foreground)_45%,var(--background))]"
+  const railColor = "[--rail:#a84bff]"
 
   return (
     <nav
@@ -381,7 +380,7 @@ const RailToc = ({
         {geometry && (
           <motion.div
             data-slot="rail-toc-plane"
-            className="pointer-events-none absolute left-0 top-0 -ml-2 -mt-2 h-4 w-4 text-foreground [filter:drop-shadow(0_0_2px_rgb(0_0_0/0.35))]"
+            className="pointer-events-none absolute left-0 top-0 -ml-2 -mt-2 h-4 w-4 text-[#a84bff] [filter:drop-shadow(0_0_4px_rgba(168,75,255,0.4))]"
             style={{ x, y, rotate: reduceMotion ? heading : turn }}
             aria-hidden
           >

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { faqs } from "@/data/faqs";
-import { HelpCircle, ChevronDown, Sparkles } from "lucide-react";
+import { Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export function FaqSection() {
@@ -13,47 +13,69 @@ export function FaqSection() {
   };
 
   return (
-    <section id="faqs" className="py-24 px-6 relative bg-[#020617] overflow-hidden">
+    <section id="faqs" className="py-24 px-6 relative bg-white overflow-hidden">
       <div className="max-w-4xl mx-auto relative z-10">
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#57c0e5]/30 bg-[#57c0e5]/10 text-xs font-semibold text-[#57c0e5] mb-4">
-            <HelpCircle className="w-3.5 h-3.5 text-[#57c0e5]" />
-            <span>Frequently Asked Questions</span>
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight mb-4">
+        <div className="text-center max-w-2xl mx-auto mb-20">
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
             Straight Answers. <br />
             <span className="text-brand-gradient">Zero Ambiguity.</span>
           </h2>
-          <p className="text-slate-400 text-sm sm:text-base">
-            Everything you need to know about our sprints, tech stack, communication, and engineering model.
+          <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+            Everything you need to know about our sprints, engineering standards, and direct founder collaboration.
           </p>
         </div>
 
-        {/* FAQs Accordion */}
-        <div className="space-y-4">
+        {/* Modern Sleek FAQ Accordion List */}
+        <div className="space-y-3">
           {faqs.map((faq, idx) => {
             const isOpen = openIndex === idx;
+            const numberFormatted = String(idx + 1).padStart(2, "0");
+
             return (
               <div
                 key={idx}
-                className="rounded-2xl bg-[#0b1329]/70 border border-white/10 overflow-hidden transition-colors hover:border-[#a84bff]/30"
+                className={`rounded-2xl transition-all duration-300 border ${
+                  isOpen
+                    ? "bg-slate-50/80 border-purple-200 shadow-sm"
+                    : "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/40"
+                }`}
               >
                 <button
                   type="button"
                   onClick={() => toggle(idx)}
                   aria-expanded={isOpen}
-                  className="w-full p-6 text-left flex items-center justify-between gap-4 cursor-pointer select-none"
+                  className="w-full py-5 px-6 sm:px-8 text-left flex items-start sm:items-center justify-between gap-4 cursor-pointer select-none group"
                 >
-                  <span className="text-base sm:text-lg font-bold text-white leading-snug">
-                    {faq.question}
-                  </span>
+                  <div className="flex items-start sm:items-center gap-4 sm:gap-6">
+                    <span
+                      className={`text-xs font-mono font-bold transition-colors pt-0.5 sm:pt-0 ${
+                        isOpen
+                          ? "text-[#a84bff]"
+                          : "text-slate-400 group-hover:text-slate-600"
+                      }`}
+                    >
+                      {numberFormatted}
+                    </span>
+                    <span
+                      className={`text-base sm:text-lg font-bold transition-colors ${
+                        isOpen
+                          ? "text-slate-900"
+                          : "text-slate-700 group-hover:text-slate-900"
+                      }`}
+                    >
+                      {faq.question}
+                    </span>
+                  </div>
+
                   <div
-                    className={`w-8 h-8 rounded-full bg-white/5 flex items-center justify-center shrink-0 text-slate-400 transition-transform duration-300 ${
-                      isOpen ? "rotate-180 text-[#57c0e5] bg-[#57c0e5]/10" : ""
+                    className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ${
+                      isOpen
+                        ? "bg-[#a84bff] text-white rotate-45 shadow-sm shadow-[#a84bff]/30"
+                        : "bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-900"
                     }`}
                   >
-                    <ChevronDown className="w-4 h-4" />
+                    <Plus className="w-4 h-4" />
                   </div>
                 </button>
 
@@ -63,10 +85,10 @@ export function FaqSection() {
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                       className="overflow-hidden"
                     >
-                      <div className="px-6 pb-6 text-sm text-slate-300 leading-relaxed pt-1 border-t border-white/5">
+                      <div className="px-6 sm:px-8 pb-6 pt-1 sm:pl-20 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-200/50">
                         {faq.answer}
                       </div>
                     </motion.div>
@@ -80,3 +102,5 @@ export function FaqSection() {
     </section>
   );
 }
+
+export default FaqSection;

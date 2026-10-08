@@ -5,17 +5,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
 const CANVAS = 240;
-const ORB_R = 72;
+const ORB_R = 74;
 const TAU = Math.PI * 2;
 
-// Generate 3D sphere points
+// 3D sphere points
 const DOT_LIST = (() => {
   const out = [];
-  const rings = 20;
+  const rings = 22;
   for (let i = 0; i < rings; i++) {
     const y = 1 - (i / (rings - 1)) * 2;
     const r = Math.sqrt(Math.max(0, 1 - y * y));
-    const m = Math.max(1, Math.round(r * 32));
+    const m = Math.max(1, Math.round(r * 36));
     for (let j = 0; j < m; j++) {
       const a = (j / m) * TAU + i * 0.35;
       out.push({
@@ -37,7 +37,8 @@ const DZ = Float32Array.from(DOT_LIST, (d) => d.z);
 const DU = Float32Array.from(DOT_LIST, (d) => d.u);
 const DS = Float32Array.from(DOT_LIST, (d) => d.seed);
 
-// Precompute BizzMate Brand Gradient colors (#a84bff -> #57c0e5 -> #266ac1)
+// Precompute BizzMate Brand Gradient colors for light background:
+// #a84bff (168, 75, 255) -> #266ac1 (38, 106, 193) -> #57c0e5 (87, 192, 229)
 const G_STEPS = 24;
 const A_STEPS = 40;
 const COLORS = (() => {
@@ -47,26 +48,26 @@ const COLORS = (() => {
     let r, gg, b;
     if (g < 0.5) {
       const t = g * 2;
-      // #a84bff (168, 75, 255) to #57c0e5 (87, 192, 229)
-      r = Math.round(168 + (87 - 168) * t);
-      gg = Math.round(75 + (192 - 75) * t);
-      b = Math.round(255 + (229 - 255) * t);
+      r = Math.round(168 + (38 - 168) * t);
+      gg = Math.round(75 + (106 - 75) * t);
+      b = Math.round(255 + (193 - 255) * t);
     } else {
       const t = (g - 0.5) * 2;
-      // #57c0e5 (87, 192, 229) to #266ac1 (38, 106, 193)
-      r = Math.round(87 + (38 - 87) * t);
-      gg = Math.round(192 + (106 - 192) * t);
-      b = Math.round(229 + (193 - 229) * t);
+      r = Math.round(38 + (87 - 38) * t);
+      gg = Math.round(106 + (192 - 106) * t);
+      b = Math.round(193 + (229 - 193) * t);
     }
     for (let ai = 0; ai <= A_STEPS; ai++) {
-      out.push(`rgba(${r},${gg},${b},${(ai / A_STEPS).toFixed(3)})`);
+      // Stronger opacity for crisp contrast on light background
+      const alphaVal = ((ai / A_STEPS) * 0.95 + 0.05).toFixed(3);
+      out.push(`rgba(${r},${gg},${b},${alphaVal})`);
     }
   }
   return out;
 })();
 
 export function LoadingOrbScreen({ onComplete }) {
-  const [phase, setPhase] = useState("orb"); // "orb" -> "rectangle" -> "reveal" -> "done"
+  const [phase, setPhase] = useState("orb"); // "orb" -> "card" -> "reveal" -> "done"
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -89,8 +90,6 @@ export function LoadingOrbScreen({ onComplete }) {
 
     let time = 0;
     let rot = 0;
-    let alpha = 1;
-    let pop = 1;
     let raf = 0;
     let isCancelled = false;
 
@@ -102,7 +101,7 @@ export function LoadingOrbScreen({ onComplete }) {
       if (isCancelled) return;
       ctx.clearRect(0, 0, CANVAS, CANVAS);
       time += 0.02;
-      rot += 0.015;
+      rot += 0.018;
 
       const cyw = Math.cos(rot);
       const syw = Math.sin(rot);
@@ -120,24 +119,23 @@ export function LoadingOrbScreen({ onComplete }) {
         const f = 2.8 / (2.8 - z2);
         const depth = (z2 + 1) / 2;
 
-        const ox = x1 * ORB_R * pop * f;
-        const oy = -y2 * ORB_R * pop * f;
+        const ox = x1 * ORB_R * f;
+        const oy = -y2 * ORB_R * f;
 
         const g = u;
-        let a = 0.2 + 0.3 * depth + 0.45 * Math.sin(DS[n] + time * 2);
-        a = Math.min(1, Math.max(0, a)) * alpha;
+        let a = 0.35 + 0.35 * depth + 0.3 * Math.sin(DS[n] + time * 2);
+        a = Math.min(1, Math.max(0, a));
 
         SX[n] = C0 + ox;
         SY[n] = C0 + oy;
         SD[n] = depth;
-        SR[n] = (1.4 + 1.2 * depth) * f;
+        SR[n] = (1.5 + 1.3 * depth) * f;
 
         const ai = Math.round(a * A_STEPS);
         const gi = Math.round(g * G_STEPS);
         SC[n] = ai <= 0 ? -1 : gi * (A_STEPS + 1) + ai;
       }
 
-      // 2-pass drawing
       for (let pass = 0; pass < 2; pass++) {
         for (let n = 0; n < N; n++) {
           const c = SC[n];
@@ -155,29 +153,20 @@ export function LoadingOrbScreen({ onComplete }) {
 
     render();
 
-    // Sequence timing:
-    // 1. Orb runs for 2.2s
-    // 2. Rectangular morph runs for 0.9s
-    // 3. Reveal screen wipe
-    const timer1 = setTimeout(() => {
-      setPhase("rectangle");
-    }, 2200);
-
-    const timer2 = setTimeout(() => {
-      setPhase("reveal");
-    }, 3200);
-
-    const timer3 = setTimeout(() => {
+    // Sequence timing
+    const t1 = setTimeout(() => setPhase("card"), 2000);
+    const t2 = setTimeout(() => setPhase("reveal"), 2900);
+    const t3 = setTimeout(() => {
       setPhase("done");
       if (onComplete) onComplete();
-    }, 3800);
+    }, 3600);
 
     return () => {
       isCancelled = true;
       if (raf) cancelAnimationFrame(raf);
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      clearTimeout(timer3);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
     };
   }, [onComplete]);
 
@@ -186,24 +175,24 @@ export function LoadingOrbScreen({ onComplete }) {
   return (
     <AnimatePresence>
       <motion.div
-        key="loading-overlay"
+        key="loading-screen"
         initial={{ opacity: 1 }}
         animate={{ opacity: phase === "reveal" ? 0 : 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed inset-0 z-50 flex items-center justify-center bg-[#020617] overflow-hidden pointer-events-auto"
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        className="fixed inset-0 z-[100] flex items-center justify-center bg-white overflow-hidden"
       >
-        {/* Ambient background glow */}
-        <div className="absolute inset-0 bg-radial from-[#a84bff]/15 via-transparent to-transparent blur-3xl pointer-events-none" />
+        {/* Subtle light ambient glow */}
+        <div className="absolute w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-[#ede9fe] via-[#e0f2fe] to-white opacity-80 blur-3xl pointer-events-none" />
 
-        {/* Phase 1: Center 3D Orb */}
+        {/* Phase 1: 3D Particle Orb */}
         {phase === "orb" && (
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
+            initial={{ scale: 0.85, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.3, opacity: 0, filter: "blur(8px)" }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            className="relative flex flex-col items-center justify-center"
+            exit={{ scale: 0.4, opacity: 0, filter: "blur(6px)" }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="relative flex flex-col items-center justify-center z-10"
           >
             <div className="relative w-[240px] h-[240px] flex items-center justify-center">
               <canvas
@@ -211,87 +200,58 @@ export function LoadingOrbScreen({ onComplete }) {
                 style={{ width: CANVAS, height: CANVAS }}
                 className="relative z-10"
               />
-              <div className="absolute w-36 h-36 rounded-full bg-brand-gradient opacity-30 blur-2xl animate-pulse pointer-events-none" />
+              <div className="absolute w-32 h-32 rounded-full bg-brand-gradient opacity-20 blur-xl pointer-events-none" />
             </div>
 
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.2 }}
               className="mt-6 flex flex-col items-center gap-2"
             >
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#57c0e5] animate-ping" />
-                <span className="text-xs uppercase font-mono tracking-[0.25em] text-slate-300 font-semibold">
-                  BIZZMATE // SYSTEM LOADING
+                <span className="w-2 h-2 rounded-full bg-[#a84bff] animate-ping" />
+                <span className="text-xs uppercase font-mono tracking-[0.25em] text-[#0f172a] font-bold">
+                  BIZZMATE // LOADING
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 font-mono">
-                Architecting modern software solutions...
+              <p className="text-xs text-[#64748b] font-medium">
+                Initializing high-performance software engine...
               </p>
             </motion.div>
           </motion.div>
         )}
 
-        {/* Phase 2: Morphing Rectangle into Full Screen */}
-        {(phase === "rectangle" || phase === "reveal") && (
+        {/* Phase 2: Morph into Card -> Reveal Wipe */}
+        {(phase === "card" || phase === "reveal") && (
           <motion.div
-            layoutId="morph-window"
-            initial={{
-              width: 140,
-              height: 140,
-              borderRadius: "50%",
-              opacity: 0.8,
-              scale: 0.9,
-            }}
+            initial={{ scale: 0.6, opacity: 0, y: 10 }}
             animate={
-              phase === "rectangle"
-                ? {
-                    width: 380,
-                    height: 110,
-                    borderRadius: 24,
-                    opacity: 1,
-                    scale: 1,
-                  }
-                : {
-                    width: "120vw",
-                    height: "120vh",
-                    borderRadius: 0,
-                    opacity: 0,
-                    scale: 1.15,
-                  }
+              phase === "card"
+                ? { scale: 1, opacity: 1, y: 0 }
+                : { scale: 1.25, opacity: 0, filter: "blur(8px)" }
             }
-            transition={{
-              duration: phase === "rectangle" ? 0.7 : 0.6,
-              ease: [0.16, 1, 0.3, 1],
-            }}
-            className="relative flex items-center justify-center bg-slate-900/90 border border-[#a84bff]/40 shadow-2xl shadow-[#a84bff]/30 backdrop-blur-2xl p-6 overflow-hidden"
+            transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+            className="z-20 flex items-center gap-4 px-6 py-4 rounded-2xl bg-white border border-[#e2e8f0] shadow-2xl shadow-[#a84bff]/15"
           >
-            {phase === "rectangle" && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex items-center gap-4"
-              >
-                <div className="w-10 h-10 rounded-xl bg-brand-gradient flex items-center justify-center p-1.5 shadow-md">
-                  <Image
-                    src="/Only Logo.png"
-                    alt="BizzMate Logo"
-                    width={32}
-                    height={32}
-                    className="object-contain"
-                  />
-                </div>
-                <div className="text-left">
-                  <div className="text-sm font-bold text-white tracking-wide">
-                    BIZZMATE
-                  </div>
-                  <div className="text-xs text-[#57c0e5] font-mono">
-                    Software Agency Ready ✦
-                  </div>
-                </div>
-              </motion.div>
-            )}
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#ede9fe] to-[#e0f2fe] border border-[#a84bff]/20 flex items-center justify-center p-2 shadow-sm">
+              <Image
+                src="/Only Logo.png"
+                alt="BizzMate Logo"
+                width={36}
+                height={36}
+                className="object-contain"
+                priority
+              />
+            </div>
+            <div>
+              <div className="text-base font-extrabold text-[#0f172a] tracking-tight">
+                BIZZMATE
+              </div>
+              <div className="text-xs font-semibold text-[#a84bff]">
+                Software Agency Ready
+              </div>
+            </div>
           </motion.div>
         )}
       </motion.div>

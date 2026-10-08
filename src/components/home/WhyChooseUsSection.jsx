@@ -44,46 +44,42 @@ export function WhyChooseUsSection() {
   ];
 
   return (
-    <section id="why-us" className="py-24 px-6 relative bg-[#020617] overflow-hidden">
+    <section id="why-us" className="py-24 px-6 relative bg-slate-50 overflow-hidden">
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#57c0e5]/30 bg-[#57c0e5]/10 text-xs font-semibold text-[#57c0e5] mb-4">
-            <Zap className="w-3.5 h-3.5 text-[#57c0e5]" />
-            <span>The BizzMate Advantage</span>
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight mb-6">
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-6">
             Why Forward-Thinking Teams <br />
             <span className="text-brand-gradient">Choose BizzMate.</span>
           </h2>
-          <p className="text-slate-400 text-base md:text-lg">
+          <p className="text-slate-600 text-base md:text-lg">
             We operate like your dedicated in-house elite software and automation squad — without the 6-month recruitment cycle or overhead.
           </p>
         </div>
 
         {/* Pillars Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {pillars.map((item, idx) => {
             const Icon = item.icon;
             return (
               <div
                 key={idx}
-                className="p-8 rounded-3xl bg-[#0b1329]/60 border border-white/10 hover:border-[#a84bff]/30 transition-all duration-300 relative group overflow-hidden"
+                className="p-8 rounded-2xl bg-white border border-slate-200 hover:border-[#a84bff]/30 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 group"
               >
                 <div className="flex items-center justify-between mb-5">
-                  <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-[#57c0e5] group-hover:text-white group-hover:bg-brand-gradient transition-all">
-                    <Icon className="w-5 h-5" />
+                  <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-[#266ac1] group-hover:bg-brand-gradient group-hover:text-white group-hover:border-transparent transition-all shadow-xs">
+                    <Icon className="w-5 h-5 text-[#266ac1] group-hover:text-white transition-colors" />
                   </div>
-                  <span className="px-3 py-1 rounded-full bg-white/5 text-[10px] font-mono uppercase tracking-wider text-slate-400 border border-white/5">
+                  <span className="px-3 py-1 rounded-full bg-slate-100 text-[10px] font-mono uppercase tracking-wider text-slate-600 font-semibold">
                     {item.badge}
                   </span>
                 </div>
 
-                <h3 className="text-lg font-bold text-white mb-2.5 group-hover:text-[#57c0e5] transition-colors">
+                <h3 className="text-lg font-bold text-slate-900 mb-2.5 group-hover:text-[#a84bff] transition-colors">
                   {item.title}
                 </h3>
 
-                <p className="text-sm text-slate-400 leading-relaxed">
+                <p className="text-sm text-slate-600 leading-relaxed">
                   {item.description}
                 </p>
               </div>

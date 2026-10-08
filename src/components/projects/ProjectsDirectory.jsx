@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { projects } from "@/data/projects";
-import { ArrowRight, Sparkles, Filter, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
+import { MagneticButton } from "@/components/ui/magnetic-button";
 
 const CATEGORIES = [
   "All",
@@ -35,8 +36,8 @@ export function ProjectsDirectory({ initialFilter = "All" }) {
               onClick={() => setActiveCategory(cat)}
               className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                 isActive
-                  ? "bg-brand-gradient text-white shadow-lg shadow-[#a84bff]/25"
-                  : "bg-[#0b1329]/80 border border-white/10 text-slate-300 hover:text-white hover:border-white/20"
+                  ? "bg-brand-gradient text-white shadow-md shadow-[#a84bff]/20"
+                  : "bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300 shadow-xs"
               }`}
             >
               {cat}
@@ -50,23 +51,23 @@ export function ProjectsDirectory({ initialFilter = "All" }) {
         {filteredProjects.map((proj) => (
           <div
             key={proj.slug}
-            className="group p-8 rounded-3xl bg-[#0b1329]/70 border border-white/10 hover:border-[#a84bff]/40 transition-all duration-300 flex flex-col justify-between shadow-xl shadow-black/30"
+            className="p-8 md:p-10 rounded-2xl bg-white border border-slate-200 hover:border-[#a84bff]/30 transition-all duration-200 flex flex-col justify-between shadow-xs hover:shadow-xl hover:-translate-y-1 group"
           >
             <div>
               <div className="flex items-center justify-between mb-5">
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono font-semibold text-[#57c0e5]">
+                <span className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-mono font-semibold text-[#266ac1]">
                   {proj.category}
                 </span>
-                <span className="px-3 py-1 rounded-full bg-brand-gradient text-white text-xs font-bold shadow-md shadow-[#a84bff]/20">
+                <span className="px-3 py-1 rounded-full bg-brand-gradient text-white text-xs font-bold shadow-xs">
                   {proj.statBadge}
                 </span>
               </div>
 
-              <h2 className="text-2xl font-bold text-white mb-3 group-hover:text-brand-gradient transition-colors">
+              <h2 className="text-2xl font-bold text-slate-900 mb-3 group-hover:text-[#a84bff] transition-colors">
                 {proj.title}
               </h2>
 
-              <p className="text-sm text-slate-300 leading-relaxed mb-6">
+              <p className="text-sm text-slate-600 leading-relaxed mb-6">
                 {proj.summary}
               </p>
 
@@ -74,7 +75,7 @@ export function ProjectsDirectory({ initialFilter = "All" }) {
                 {proj.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="px-2.5 py-1 rounded-md bg-white/5 text-[11px] font-mono text-slate-400"
+                    className="px-2.5 py-1 rounded-md bg-slate-100 text-[11px] font-mono text-slate-600"
                   >
                     {tag}
                   </span>
@@ -82,14 +83,14 @@ export function ProjectsDirectory({ initialFilter = "All" }) {
               </div>
             </div>
 
-            <div className="pt-6 border-t border-white/10 flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-400">
-                Client: <span className="text-slate-200 font-semibold">{proj.client}</span>
+            <div className="pt-6 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-xs font-medium text-slate-500">
+                Client: <span className="text-slate-800 font-semibold">{proj.client}</span>
               </span>
 
               <Link
                 href={`/projects/${proj.slug}`}
-                className="inline-flex items-center gap-2 text-xs font-bold text-white hover:text-[#57c0e5] transition-colors"
+                className="inline-flex items-center gap-2 text-xs font-bold text-[#a84bff] hover:text-[#266ac1] transition-colors"
               >
                 <span>Read Full Case Study</span>
                 <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />

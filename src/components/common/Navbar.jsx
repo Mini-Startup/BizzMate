@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Menu, X, Sparkles } from "lucide-react";
+import { MagneticButton } from "@/components/ui/magnetic-button";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -27,18 +28,18 @@ export function Navbar() {
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 flex justify-center px-4 pt-4 sm:pt-6 pointer-events-none">
+    <header className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 pt-3 sm:pt-4 pointer-events-none">
       <nav
         aria-label="Main Navigation"
-        className={`pointer-events-auto w-full max-w-5xl transition-all duration-300 rounded-full px-5 py-3 flex items-center justify-between border ${
+        className={`pointer-events-auto w-full max-w-6xl transition-all duration-300 rounded-full px-5 py-2.5 flex items-center justify-between border ${
           scrolled
-            ? "bg-[#0b1329]/80 backdrop-blur-xl border-white/15 shadow-2xl shadow-black/60"
-            : "bg-[#0b1329]/50 backdrop-blur-md border-white/10"
+            ? "bg-white/90 backdrop-blur-xl border-slate-200 shadow-lg shadow-slate-900/5"
+            : "bg-white/80 backdrop-blur-md border-slate-200/70 shadow-sm"
         }`}
       >
         {/* Brand Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="relative w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center p-0.5 transition-transform duration-300 group-hover:scale-105">
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <div className="relative w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
             <Image
               src="/Only Logo.png"
               alt="BizzMate Logo"
@@ -48,7 +49,7 @@ export function Navbar() {
               priority
             />
           </div>
-          <span className="font-extrabold text-base md:text-lg tracking-tight text-white group-hover:text-brand-gradient transition-colors">
+          <span className="font-extrabold text-lg tracking-tight text-slate-900 group-hover:text-[#a84bff] transition-colors">
             BizzMate
           </span>
         </Link>
@@ -59,35 +60,35 @@ export function Navbar() {
             <Link
               key={link.label}
               href={link.href}
-              className="px-3.5 py-1.5 rounded-full text-xs lg:text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors"
+              className="px-3.5 py-1.5 rounded-full text-xs lg:text-sm font-medium text-slate-600 hover:text-[#a84bff] hover:bg-slate-100/70 transition-colors"
             >
               {link.label}
             </Link>
           ))}
           <Link
             href="/projects"
-            className="px-3.5 py-1.5 rounded-full text-xs lg:text-sm font-semibold text-[#57c0e5] hover:text-white hover:bg-[#57c0e5]/10 transition-colors"
+            className="px-3.5 py-1.5 rounded-full text-xs lg:text-sm font-semibold text-[#266ac1] hover:text-[#a84bff] hover:bg-slate-100/70 transition-colors"
           >
             All Work
           </Link>
         </div>
 
-        {/* Right CTA Button */}
+        {/* Right CTA Button with Magnetic effect */}
         <div className="hidden sm:flex items-center gap-3">
-          <Link
+          <MagneticButton
             href="#cta"
-            className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs md:text-sm font-bold text-white bg-brand-gradient shadow-md shadow-[#a84bff]/25 hover:shadow-[#a84bff]/50 hover:scale-[1.02] active:scale-[0.98] transition-all"
+            className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs md:text-sm font-semibold text-white bg-brand-gradient shadow-md shadow-[#a84bff]/25 hover:shadow-[#a84bff]/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
           >
             <span>Book a Demo</span>
             <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+          </MagneticButton>
         </div>
 
         {/* Mobile Hamburger Toggle */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-          className="md:hidden p-2 rounded-full text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+          className="md:hidden p-2 rounded-full text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
         >
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
@@ -95,13 +96,13 @@ export function Navbar() {
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="pointer-events-auto fixed inset-x-4 top-20 rounded-2xl bg-[#0b1329]/95 backdrop-blur-2xl border border-white/15 p-5 shadow-2xl flex flex-col gap-3 md:hidden z-50">
+        <div className="pointer-events-auto fixed inset-x-4 top-20 rounded-2xl bg-white/95 backdrop-blur-2xl border border-slate-200 p-5 shadow-2xl flex flex-col gap-3 md:hidden z-50">
           {navLinks.map((link) => (
             <Link
               key={link.label}
               href={link.href}
               onClick={() => setMobileMenuOpen(false)}
-              className="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:text-white hover:bg-white/10 transition-colors"
+              className="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition-colors"
             >
               {link.label}
             </Link>
@@ -109,11 +110,11 @@ export function Navbar() {
           <Link
             href="/projects"
             onClick={() => setMobileMenuOpen(false)}
-            className="px-4 py-2.5 rounded-xl text-sm font-semibold text-[#57c0e5] hover:bg-[#57c0e5]/10 transition-colors"
+            className="px-4 py-2.5 rounded-xl text-sm font-semibold text-[#266ac1] hover:bg-slate-50 transition-colors"
           >
             View All Projects
           </Link>
-          <div className="pt-2 border-t border-white/10">
+          <div className="pt-2 border-t border-slate-100">
             <Link
               href="#cta"
               onClick={() => setMobileMenuOpen(false)}

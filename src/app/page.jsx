@@ -20,7 +20,7 @@ export default function HomePage() {
     <>
       <LoadingOrbScreen />
       <Navbar />
-      <main className="flex-1 w-full flex flex-col">
+      <main className="relative z-10 w-full flex flex-col bg-white rounded-b-[40px] shadow-2xl">
         <HeroSection />
         <ProblemSection />
         <ServicesSection />

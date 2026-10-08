@@ -2,18 +2,28 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-sans: var(--font-outfit), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-mono), monospace;
+  --font-heading: var(--font-outfit), system-ui, -apple-system, sans-serif;
   
   --color-brand-violet: #a84bff;
   --color-brand-blue: #266ac1;
   --color-brand-sky: #57c0e5;
+
+  --color-neutral-950: #020617;
+  --color-neutral-900: #0f172a;
+  --color-neutral-800: #1e293b;
+  --color-neutral-700: #334155;
+  --color-neutral-600: #475569;
+  --color-neutral-500: #64748b;
+  --color-neutral-400: #94a3b8;
+  --color-neutral-300: #cbd5e1;
+  --color-neutral-200: #e2e8f0;
+  --color-neutral-100: #f1f5f9;
+  --color-neutral-50: #f8fafc;
 
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
@@ -31,52 +41,56 @@
 }
 
 :root {
-  --background: #020617;
-  --foreground: #f8fafc;
-  --card: #0b1329;
-  --card-foreground: #f8fafc;
-  --popover: #0b1329;
-  --popover-foreground: #f8fafc;
+  /* LIGHT MODE AS SPECIFIED IN STYLEGUIDE.MD */
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
   --primary: #a84bff;
   --primary-foreground: #ffffff;
-  --secondary: #1e293b;
-  --secondary-foreground: #f8fafc;
-  --muted: #0f172a;
-  --muted-foreground: #94a3b8;
-  --accent: #1e293b;
-  --accent-foreground: #f8fafc;
-  --destructive: #ef4444;
-  --border: rgba(255, 255, 255, 0.08);
-  --input: rgba(255, 255, 255, 0.12);
+  --secondary: #f8fafc;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #f8fafc;
+  --accent-foreground: #0f172a;
+  --destructive: #dc2626;
+  --border: #e2e8f0;
+  --input: #cbd5e1;
   --ring: #a84bff;
-  --radius: 0.75rem;
+  --radius: 0.875rem; /* 14px as per radius-lg in styleguide */
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
     box-sizing: border-box;
   }
   html {
-    color-scheme: dark;
+    color-scheme: light;
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-background text-foreground;
-    font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
-    background-color: #020617;
-    color: #f8fafc;
+    background-color: #ffffff;
+    color: #334155; /* neutral-700 default body text */
+    font-family: var(--font-outfit), system-ui, -apple-system, sans-serif;
     overflow-x: hidden;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    color: #0f172a; /* neutral-900 default heading text */
+    font-family: var(--font-outfit), system-ui, -apple-system, sans-serif;
   }
 }
 
-/* Custom Utilities for BizzMate Brand */
+/* Brand Gradient Tokens according to STYLEGUIDE.md Section 2.1 */
 .bg-brand-gradient {
   background: linear-gradient(135deg, #a84bff 0%, #266ac1 50%, #57c0e5 100%);
 }
 
 .text-brand-gradient {
-  background: linear-gradient(135deg, #a84bff 0%, #57c0e5 50%, #266ac1 100%);
+  background: linear-gradient(135deg, #a84bff 0%, #266ac1 50%, #57c0e5 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -89,43 +103,38 @@
   background-clip: text;
 }
 
-.border-brand-gradient {
-  border-image: linear-gradient(135deg, #a84bff, #57c0e5, #266ac1) 1;
+/* Light Mode Glassmorphism & Elevation */
+.light-glass-nav {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
 }
 
-.brand-glow {
-  box-shadow: 0 0 35px -5px rgba(168, 75, 255, 0.35);
+.light-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
 }
 
-.brand-glow-lg {
-  box-shadow: 0 0 70px -10px rgba(87, 192, 229, 0.3), 0 0 30px -5px rgba(168, 75, 255, 0.4);
+.light-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08), 0 2px 8px rgba(15, 23, 42, 0.04);
+  border-color: #cbd5e1;
 }
 
-.glass-dock {
-  background: rgba(11, 19, 41, 0.65);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.light-card-brand:hover {
+  border-color: rgba(168, 75, 255, 0.4);
+  box-shadow: 0 10px 28px rgba(168, 75, 255, 0.12), 0 2px 8px rgba(15, 23, 42, 0.04);
 }
 
-.glass-card {
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.glass-card:hover {
-  background: rgba(30, 41, 59, 0.7);
-  border-color: rgba(168, 75, 255, 0.35);
-  box-shadow: 0 10px 30px -10px rgba(168, 75, 255, 0.2);
-}
-
-/* Subtle background grid pattern */
-.bg-grid-slate {
+/* Subtle background grid pattern for light mode */
+.bg-grid-light {
   background-size: 40px 40px;
   background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(to right, rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
 }
