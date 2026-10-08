@@ -19,7 +19,6 @@ export default function HomePage() {
   return (
     <>
       <LoadingOrbScreen />
-      <Navbar />
       <main className="relative z-10 w-full flex flex-col bg-white rounded-b-[40px] shadow-2xl">
         <HeroSection />
         <ProblemSection />

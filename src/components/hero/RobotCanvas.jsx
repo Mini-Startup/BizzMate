@@ -204,7 +204,7 @@ function RobotEye({
   const normalEyesRef = useRef(null);
   const heartEyeRef = useRef(null);
 
-  useFrame(({ clock }) => {
+  useFrame(() => {
     if (!groupRef.current || !normalEyesRef.current || !heartEyeRef.current)
       return;
 
@@ -213,7 +213,8 @@ function RobotEye({
     normalEyesRef.current.visible = !isHeart;
     heartEyeRef.current.visible = isHeart;
 
-    const cycle = clock.getElapsedTime() % blinkCycle;
+    const elapsed = performance.now() * 0.001;
+    const cycle = elapsed % blinkCycle;
     let targetScaleY = 1;
 
     if (cycle < blinkDuration && !isHeart) {
@@ -328,10 +329,21 @@ function RobotModel({
 
   const [textures, setTextures] = useState({ colorMap: null, bumpMap: null });
 
+  const pointerRef = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMove = (e) => {
+      pointerRef.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      pointerRef.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    };
+    window.addEventListener("pointermove", handleMove, { passive: true });
+    return () => window.removeEventListener("pointermove", handleMove);
+  }, []);
+
   const config = {
-    moveSpeed: 0.35,
-    bodyRotSpeed: 8.0,
-    headRotSpeed: 18.0,
+    moveSpeed: 0.12,
+    bodyRotSpeed: 2.2,
+    headRotSpeed: 4.5,
     bodyTiltX: 0.0,
     bodyTiltY: 0.85,
     headLookX: 0.35,
@@ -342,10 +354,10 @@ function RobotModel({
     if (!bodyRef.current || !headRef.current) return;
     const dt = Math.min(delta, 0.1);
 
-    const tx = state.pointer.x;
-    const ty = state.pointer.y;
+    const tx = pointerRef.current.x;
+    const ty = pointerRef.current.y;
 
-    const maxMoveX = state.viewport.width / 4;
+    const maxMoveX = state.viewport.width / 5;
     const targetPosX = tx * maxMoveX;
 
     bodyRef.current.position.x = THREE.MathUtils.lerp(
@@ -544,8 +556,8 @@ export function RobotCanvas({
   scale = 1.45,
 }) {
   return (
-    <div className="w-full h-full relative cursor-grab active:cursor-grabbing">
-      <Canvas shadows camera={{ position: [0, -0.38, 4.3], fov: 42 }} gl={{ alpha: true }}>
+    <div className="w-full h-full relative pointer-events-none">
+      <Canvas camera={{ position: [0, -0.38, 4.3], fov: 42 }} gl={{ alpha: true }}>
         <ambientLight intensity={0.85} color="#ffffff" />
         <directionalLight
           position={[0, 5, 3]}

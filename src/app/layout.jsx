@@ -38,14 +38,18 @@ export const metadata = {
   },
 };
 
+import { Navbar } from "@/components/common/Navbar";
+
 export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${outfit.variable} ${jetbrainsMono.variable} ${plusJakartaSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-white text-slate-800 antialiased selection:bg-[#a84bff]/20 selection:text-[#a84bff] font-sans">
+      <body className="min-h-full flex flex-col bg-white text-slate-800 antialiased selection:bg-brand-violet/20 selection:text-brand-violet font-sans">
         <SmoothFollower />
+        <Navbar />
         {children}
       </body>
        {process.env.NODE_ENV === "development" && <Agentation />}
