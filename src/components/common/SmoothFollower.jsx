@@ -1,8 +1,10 @@
-'use client';
+"use client";
 
 import { useState, useEffect, useRef } from 'react';
+import { useMounted } from '@/hooks/useMounted';
 
 export default function SmoothFollower() {
+  const mounted = useMounted();
   const mousePosition = useRef({ x: -100, y: -100 });
   const dotPosition = useRef({ x: -100, y: -100 });
   const borderDotPosition = useRef({ x: -100, y: -100 });
@@ -81,7 +83,7 @@ export default function SmoothFollower() {
     };
   }, []);
 
-  if (typeof window === 'undefined') return null;
+  if (!mounted) return null;
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[9999]">

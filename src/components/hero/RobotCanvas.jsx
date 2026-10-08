@@ -4,6 +4,7 @@ import React, { useMemo, useRef, useState, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, ContactShadows } from "@react-three/drei";
 import * as THREE from "three";
+import { useMounted } from "@/hooks/useMounted";
 
 class HeartCurve extends THREE.Curve {
   getPoint(t, optionalTarget = new THREE.Vector3()) {
@@ -333,15 +334,39 @@ function RobotModel({
 
   useEffect(() => {
     const handleMove = (e) => {
-      pointerRef.current.x = (e.clientX / window.innerWidth) * 2 - 1;
-      pointerRef.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      // Only track pointer when hero section is in view
+      if (window.scrollY < 250) {
+        pointerRef.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+        pointerRef.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      }
     };
+
+    const handleScroll = () => {
+      // When scrolled away from hero, smoothly reset robot to dead center
+      if (window.scrollY > 150) {
+        pointerRef.current.x = 0;
+        pointerRef.current.y = 0;
+      }
+    };
+
+    const handleMouseLeave = () => {
+      pointerRef.current.x = 0;
+      pointerRef.current.y = 0;
+    };
+
     window.addEventListener("pointermove", handleMove, { passive: true });
-    return () => window.removeEventListener("pointermove", handleMove);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("mouseleave", handleMouseLeave, { passive: true });
+
+    return () => {
+      window.removeEventListener("pointermove", handleMove);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("mouseleave", handleMouseLeave);
+    };
   }, []);
 
   const config = {
-    moveSpeed: 0.12,
+    moveSpeed: 0.32,
     bodyRotSpeed: 2.2,
     headRotSpeed: 4.5,
     bodyTiltX: 0.0,
@@ -553,11 +578,32 @@ function RobotModel({
 export function RobotCanvas({
   color = "#ffffff",
   pantallaColor = "#a84bff",
-  scale = 1.45,
+  scale = 1.2,
 }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
   return (
-    <div className="w-full h-full relative pointer-events-none">
-      <Canvas camera={{ position: [0, -0.38, 4.3], fov: 42 }} gl={{ alpha: true }}>
+    <div
+      aria-hidden="true"
+      role="presentation"
+      data-nosnippet="true"
+      className="w-full h-full relative pointer-events-none"
+    >
+      <Canvas
+        aria-hidden="true"
+        role="presentation"
+        tabIndex={-1}
+        camera={{ position: [0, -0.38, 4.3], fov: 42 }}
+        gl={{ alpha: true, powerPreference: "high-performance" }}
+      >
         <ambientLight intensity={0.85} color="#ffffff" />
         <directionalLight
           position={[0, 5, 3]}

@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { useMounted } from "@/hooks/useMounted";
 import {
   ArrowRight,
   Bot,
@@ -16,19 +17,11 @@ import { MagneticButton } from "@/components/ui/magnetic-button";
 // Dynamically load 3D RobotCanvas on client side only (SSR false)
 const RobotCanvas = dynamic(() => import("@/components/hero/RobotCanvas"), {
   ssr: false,
-  loading: () => (
-    <div className="w-full h-full flex flex-col items-center justify-center gap-3">
-      <div className="w-28 h-28 rounded-full bg-brand-lavender animate-pulse border border-brand-violet/30 flex items-center justify-center shadow-lg shadow-brand-violet/10">
-        <Bot className="w-12 h-12 text-brand-violet animate-bounce" />
-      </div>
-      <span className="text-xs font-semibold text-neutral-400 uppercase tracking-widest">
-        Loading 3D Engine...
-      </span>
-    </div>
-  ),
 });
 
 export function HeroSection() {
+  const mounted = useMounted();
+
   return (
     <section id="hero" className="relative w-full bg-white pt-8">
       {/* Ambient Top Glow using Tailwind v4 native scales */}
@@ -65,9 +58,12 @@ export function HeroSection() {
 
         {/* 2. FULL-WIDTH 3D INTERACTIVE ROBOT CANVAS */}
         {/* Full-width canvas with pointer-events-none so it NEVER blocks text, links, or buttons */}
-        <div className="absolute inset-x-0 -top-15 h-[660px] sm:h-[740px] md:h-[820px] z-20 pointer-events-none flex items-center justify-center">
+        <div
+
+          className="absolute inset-x-0 -top-25 h-[660px] sm:h-[740px] md:h-[820px] z-20 pointer-events-none flex items-center justify-center"
+        >
           <div className="w-full h-full">
-            <RobotCanvas color="#ffffff" pantallaColor="#a84bff" scale={1.45} />
+            {mounted && <RobotCanvas color="#ffffff" pantallaColor="#a84bff" scale={1.2} />}
           </div>
         </div>
 

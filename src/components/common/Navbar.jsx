@@ -301,14 +301,14 @@ export function Navbar() {
                     <Image
                       src="/Only Logo.png"
                       alt="BizzMate Logo"
-                      width={32}
-                      height={32}
+                      width={64}
+                      height={64}
                       className="object-contain"
                       priority
                     />
                   </div>
                   <span className="font-black text-xl sm:text-2xl md:text-3xl tracking-tighter text-neutral-900 group-hover:text-brand-violet transition-colors font-sans">
-                    BIZZMATE
+                    BizzMate
                   </span>
                 </Link>
               </div>
