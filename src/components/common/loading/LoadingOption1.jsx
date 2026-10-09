@@ -95,9 +95,13 @@ export default function LoadingOption1({ onComplete }) {
   };
 
   useEffect(() => {
-    measureHomePill();
-    window.addEventListener("resize", measureHomePill);
-    return () => window.removeEventListener("resize", measureHomePill);
+    const handleResize = () => measureHomePill();
+    const rafId = requestAnimationFrame(handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   // 3D Dotted Orb Canvas Engine: Delicate micro-dots with Brand Violet thinking waves

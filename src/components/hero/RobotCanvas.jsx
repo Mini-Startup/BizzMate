@@ -6,6 +6,20 @@ import { Environment, ContactShadows } from "@react-three/drei";
 import * as THREE from "three";
 import { useMounted } from "@/hooks/useMounted";
 
+// Filter out internal THREE.Clock deprecation warning emitted by @react-three/fiber
+if (typeof window !== "undefined") {
+  const origWarn = console.warn;
+  console.warn = (...args) => {
+    if (
+      typeof args[0] === "string" &&
+      args[0].includes("THREE.Clock: This module has been deprecated")
+    ) {
+      return;
+    }
+    origWarn.apply(console, args);
+  };
+}
+
 class HeartCurve extends THREE.Curve {
   getPoint(t, optionalTarget = new THREE.Vector3()) {
     const angle = t * Math.PI * 2;
@@ -268,10 +282,14 @@ function RobotEye({
   );
 }
 
+let cachedPbrTextures = null;
+
 function generatePbrTexturesAsync() {
+  if (cachedPbrTextures) return Promise.resolve(cachedPbrTextures);
+
   return new Promise((resolve) => {
-    setTimeout(() => {
-      const size = 512;
+    requestAnimationFrame(() => {
+      const size = 256;
       const canvasC = document.createElement("canvas");
       const canvasB = document.createElement("canvas");
       canvasC.width = canvasB.width = size;
@@ -285,22 +303,23 @@ function generatePbrTexturesAsync() {
         ctxB.fillStyle = "#808080";
         ctxB.fillRect(0, 0, size, size);
 
-        for (let i = 0; i < 7000; i++) {
-          const x = Math.random() * size;
-          const y = Math.random() * size;
-          const r = 0.5 + Math.random() * 1.5;
-          const isDark = Math.random() > 0.3;
+        const imgC = ctxC.getImageData(0, 0, size, size);
+        const imgB = ctxB.getImageData(0, 0, size, size);
+        const bufC = new Uint32Array(imgC.data.buffer);
+        const bufB = new Uint32Array(imgB.data.buffer);
 
-          ctxC.beginPath();
-          ctxC.arc(x, y, r, 0, Math.PI * 2);
-          ctxC.fillStyle = isDark ? "#e2e8f0" : "#ffffff";
-          ctxC.fill();
-
-          ctxB.beginPath();
-          ctxB.arc(x, y, r, 0, Math.PI * 2);
-          ctxB.fillStyle = isDark ? "#404040" : "#ffffff";
-          ctxB.fill();
+        const total = size * size;
+        for (let i = 0; i < total; i++) {
+          const rand = Math.random();
+          if (rand < 0.12) {
+            const isDark = rand > 0.036;
+            bufC[i] = isDark ? 0xfff0e8e2 : 0xffffffff;
+            bufB[i] = isDark ? 0xff404040 : 0xffffffff;
+          }
         }
+
+        ctxC.putImageData(imgC, 0, 0);
+        ctxB.putImageData(imgB, 0, 0);
       }
 
       const texC = new THREE.CanvasTexture(canvasC);
@@ -312,8 +331,9 @@ function generatePbrTexturesAsync() {
       texC.needsUpdate = true;
       texB.needsUpdate = true;
 
-      resolve({ colorMap: texC, bumpMap: texB });
-    }, 0);
+      cachedPbrTextures = { colorMap: texC, bumpMap: texB };
+      resolve(cachedPbrTextures);
+    });
   });
 }
 
@@ -635,6 +655,7 @@ export function RobotCanvas({
             blur={1.8}
             far={2.5}
             color="#0f172a"
+            frames={1}
           />
           <RobotModel color={color} pantallaColor={pantallaColor} />
         </ResponsiveGroup>

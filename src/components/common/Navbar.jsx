@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -60,117 +60,138 @@ const NAV_ITEMS = [
 export function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
-  const [localActiveSection, setLocalActiveSection] = useState(() => {
-    if (typeof window !== "undefined" && window.location.hash) {
-      const h = window.location.hash.replace("#", "");
-      if (SECTION_IDS.includes(h)) {
-        return h;
-      }
-    }
-    return "hero";
-  });
+  const [localActiveSection, setLocalActiveSection] = useState("hero");
 
   const activeSection = pathname.startsWith("/projects") ? "projects" : localActiveSection;
 
   const activeSectionRef = useRef(activeSection);
-  activeSectionRef.current = activeSection;
-
   const scrolledRef = useRef(false);
   const isClickScrollingRef = useRef(false);
-  const scrollLockTimeoutRef = useRef(null);
+  const clickTargetRef = useRef(null);
+  const scrollMonitorRafRef = useRef(null);
   const dropdownTimeoutRef = useRef(null);
 
   const [projectsDropdownOpen, setProjectsDropdownOpen] = useState(false);
   const [offsets, setOffsets] = useState({ navX: 0, ctaX: 0 });
   const [dockWidth, setDockWidth] = useState(800);
+  const [indicatorStyle, setIndicatorStyle] = useState({
+    x: 6,
+    width: 70,
+    top: 6,
+    height: 36,
+    ready: true,
+  });
+
   const navRef = useRef(null);
   const linksRef = useRef(null);
   const ctaRef = useRef(null);
   const miniLogoRef = useRef(null);
+  const pillContainerRef = useRef(null);
 
-  // Measure and calculate exact transform translation distances from outer edges to dock
-  useEffect(() => {
-    const updateOffsets = () => {
-      if (typeof window === "undefined") return;
-      const innerW = window.innerWidth;
-      if (innerW < 840) {
-        setOffsets({ navX: 0, ctaX: 0 });
-        return;
-      }
-
-      const navEl = navRef.current;
-      const navRect = navEl ? navEl.getBoundingClientRect() : null;
-
-      // Untransformed initial edge positions (matching px-4 sm:px-8 md:px-10 lg:px-12)
-      let initialNavLeft = 48;
-      let initialCtaLeft = innerW - 48 - 134;
-
-      if (navRect && navRect.left > 0) {
-        initialNavLeft = navRect.left;
-        initialCtaLeft = navRect.right - (ctaRef.current?.offsetWidth || 134);
-      }
-
-      // Dynamically measure mini logo width (adapts to text size like text-lg)
-      const miniLogoW = miniLogoRef.current?.offsetWidth || 124;
-      const navW = linksRef.current?.offsetWidth || 530;
-      const ctaW = ctaRef.current?.offsetWidth || 134;
-
-      // Symmetrical edge padding on both ends (left of logo == right of CTA)
-      const dockEdgePad = 16;
-      const gapLogoToNav = 12;
-      const gapNavToCta = 12;
-
-      // Dynamic capsule width with exact symmetrical outer padding
-      const calculatedDockWidth = Math.round(
-        dockEdgePad + miniLogoW + gapLogoToNav + navW + gapNavToCta + ctaW + dockEdgePad
-      );
-      setDockWidth(calculatedDockWidth);
-
-      const dockLeft = (innerW - calculatedDockWidth) / 2;
-
-      // Nav Links translates into dock with proper spacing
-      const targetNavLeft = dockLeft + dockEdgePad + miniLogoW + gapLogoToNav;
-      const navX = targetNavLeft - initialNavLeft;
-
-      // CTA translates into dock with identical dockEdgePad on the right
-      const targetCtaLeft = targetNavLeft + navW + gapNavToCta;
-      const ctaX = targetCtaLeft - initialCtaLeft;
-
-      setOffsets({ navX, ctaX });
-    };
-
-    updateOffsets();
-    window.addEventListener("resize", updateOffsets);
-    if (typeof document !== "undefined" && document.fonts) {
-      document.fonts.ready.then(updateOffsets);
+  const updateIndicatorPosition = useCallback((targetId) => {
+    const id = targetId || activeSectionRef.current;
+    const btn = document.getElementById(`nav-item-${id}`);
+    if (btn && btn.parentElement) {
+      const parent = btn.parentElement;
+      setIndicatorStyle({
+        x: parent.offsetLeft,
+        width: parent.offsetWidth,
+        top: parent.offsetTop,
+        height: parent.offsetHeight,
+        ready: true,
+      });
     }
-    return () => window.removeEventListener("resize", updateOffsets);
   }, []);
 
-  // Sync hash changes on homepage
-  useEffect(() => {
-    if (pathname !== "/") return;
-    const handleHashChange = () => {
-      const hash = window.location.hash.replace("#", "");
-      if (hash && SECTION_IDS.includes(hash)) {
-        activeSectionRef.current = hash;
-        setLocalActiveSection(hash);
-      }
-    };
-    window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
-  }, [pathname]);
+  const updateOffsets = useCallback(() => {
+    if (typeof window === "undefined") return;
+    const innerW = window.innerWidth;
+    if (innerW < 840) {
+      setOffsets({ navX: 0, ctaX: 0 });
+      return;
+    }
 
-  // Unified high-performance scroll listener (dock hysteresis + robust reading-line scroll spy)
+    const navEl = navRef.current;
+    const navRect = navEl ? navEl.getBoundingClientRect() : null;
+
+    let initialNavLeft = 48;
+    let initialCtaLeft = innerW - 48 - 134;
+
+    if (navRect && navRect.left > 0) {
+      initialNavLeft = navRect.left;
+      initialCtaLeft = navRect.right - (ctaRef.current?.offsetWidth || 134);
+    }
+
+    const miniLogoW = miniLogoRef.current?.offsetWidth || 124;
+    const navW = linksRef.current?.offsetWidth || 530;
+    const ctaW = ctaRef.current?.offsetWidth || 134;
+
+    const dockEdgePad = 16;
+    const gapLogoToNav = 12;
+    const gapNavToCta = 12;
+
+    const calculatedDockWidth = Math.round(
+      dockEdgePad + miniLogoW + gapLogoToNav + navW + gapNavToCta + ctaW + dockEdgePad
+    );
+    setDockWidth(calculatedDockWidth);
+
+    const dockLeft = (innerW - calculatedDockWidth) / 2;
+    const targetNavLeft = dockLeft + dockEdgePad + miniLogoW + gapLogoToNav;
+    const navX = targetNavLeft - initialNavLeft;
+    const targetCtaLeft = targetNavLeft + navW + gapNavToCta;
+    const ctaX = targetCtaLeft - initialCtaLeft;
+
+    setOffsets({ navX, ctaX });
+    updateIndicatorPosition(activeSectionRef.current);
+  }, [updateIndicatorPosition]);
+
+  // Keep activeSectionRef synced
+  useEffect(() => {
+    activeSectionRef.current = activeSection;
+  }, [activeSection]);
+
+  // Master unified listener: Scroll spy, dock hysteresis, and layout sync with 0 duplicate renders
   useEffect(() => {
     if (pathname !== "/") return;
 
     let rafId = null;
 
+    const handleInitial = () => {
+      updateOffsets();
+      if (window.location.hash) {
+        const h = window.location.hash.replace("#", "");
+        if (SECTION_IDS.includes(h)) {
+          activeSectionRef.current = h;
+          setLocalActiveSection(h);
+          updateIndicatorPosition(h);
+        } else {
+          updateIndicatorPosition("hero");
+        }
+      } else {
+        updateIndicatorPosition("hero");
+      }
+
+      if (window.scrollY > 35) {
+        scrolledRef.current = true;
+        setScrolled(true);
+      }
+    };
+
+    const mountRaf = requestAnimationFrame(handleInitial);
+
     const updateScrollState = () => {
       const y = window.scrollY;
 
-      // 1. Header expansion vs compact dock hysteresis
+      // 1. If currently programmatic scrolling from nav click:
+      if (isClickScrollingRef.current) {
+        if (clickTargetRef.current === "hero" && y <= 25 && scrolledRef.current) {
+          scrolledRef.current = false;
+          setScrolled(false);
+        }
+        return;
+      }
+
+      // 2. Dock hysteresis
       if (y > 35) {
         if (!scrolledRef.current) {
           scrolledRef.current = true;
@@ -183,22 +204,20 @@ export function Navbar() {
         }
       }
 
-      // 2. If smooth scrolling from nav click, do not override section
-      if (isClickScrollingRef.current) return;
-
-      // 3. Bottom of page check (activate last section)
+      // 3. Bottom of page check (activate last section faqs)
       const isAtBottom =
         window.innerHeight + y >= document.documentElement.scrollHeight - 60;
       if (isAtBottom) {
         if (activeSectionRef.current !== "faqs") {
           activeSectionRef.current = "faqs";
           setLocalActiveSection("faqs");
+          updateIndicatorPosition("faqs");
           window.history.replaceState(null, "", "#faqs");
         }
         return;
       }
 
-      // 4. Section spy: find lowest section whose top has reached reading line (140px)
+      // 4. Section spy: reading line
       let current = "hero";
       for (let i = SECTION_IDS.length - 1; i >= 0; i--) {
         const id = SECTION_IDS[i];
@@ -215,6 +234,7 @@ export function Navbar() {
       if (current !== activeSectionRef.current) {
         activeSectionRef.current = current;
         setLocalActiveSection(current);
+        updateIndicatorPosition(current);
         if (window.location.hash.replace("#", "") !== current) {
           window.history.replaceState(null, "", `#${current}`);
         }
@@ -229,18 +249,51 @@ export function Navbar() {
       });
     };
 
-    handleScroll();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      if (rafId) cancelAnimationFrame(rafId);
+    const handleScrollEnd = () => {
+      isClickScrollingRef.current = false;
+      clickTargetRef.current = null;
+      const atTop = window.scrollY <= 25;
+      if (scrolledRef.current !== !atTop) {
+        scrolledRef.current = !atTop;
+        setScrolled(!atTop);
+      }
     };
-  }, [pathname]);
+
+    const handleHashChange = () => {
+      const h = window.location.hash.replace("#", "");
+      if (h && SECTION_IDS.includes(h)) {
+        activeSectionRef.current = h;
+        setLocalActiveSection(h);
+        updateIndicatorPosition(h);
+      }
+    };
+
+    const handleResize = () => {
+      updateOffsets();
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("scrollend", handleScrollEnd, { passive: true });
+    window.addEventListener("resize", handleResize, { passive: true });
+    window.addEventListener("hashchange", handleHashChange);
+    if (typeof document !== "undefined" && document.fonts) {
+      document.fonts.ready.then(updateOffsets);
+    }
+
+    return () => {
+      cancelAnimationFrame(mountRaf);
+      if (rafId) cancelAnimationFrame(rafId);
+      if (scrollMonitorRafRef.current) cancelAnimationFrame(scrollMonitorRafRef.current);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scrollend", handleScrollEnd);
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("hashchange", handleHashChange);
+    };
+  }, [pathname, updateIndicatorPosition, updateOffsets]);
 
   // Clean up any timeouts on unmount
   useEffect(() => {
     return () => {
-      if (scrollLockTimeoutRef.current) clearTimeout(scrollLockTimeoutRef.current);
       if (dropdownTimeoutRef.current) clearTimeout(dropdownTimeoutRef.current);
     };
   }, []);
@@ -262,43 +315,68 @@ export function Navbar() {
     if (pathname === "/") {
       e.preventDefault();
 
-      // 1. Immediately activate target item for instant visual feedback
-      activeSectionRef.current = item.id;
-      setLocalActiveSection(item.id);
+      const targetId = item.id;
+      activeSectionRef.current = targetId;
+      setLocalActiveSection(targetId);
+      updateIndicatorPosition(targetId);
 
-      // 2. Lock scroll spy during smooth scroll so intermediate sections don't fumble
       isClickScrollingRef.current = true;
-      if (scrollLockTimeoutRef.current) clearTimeout(scrollLockTimeoutRef.current);
+      clickTargetRef.current = targetId;
 
-      // 3. Immediately trigger navbar expansion if heading to hero
-      if (item.id === "hero") {
-        scrolledRef.current = false;
-        setScrolled(false);
-      } else {
-        scrolledRef.current = true;
-        setScrolled(true);
+      if (scrollMonitorRafRef.current) {
+        cancelAnimationFrame(scrollMonitorRafRef.current);
       }
 
-      // 4. Update URL hash
       if (typeof window !== "undefined") {
-        window.history.replaceState(null, "", `#${item.id}`);
+        window.history.replaceState(null, "", `#${targetId}`);
       }
 
-      // 5. Smooth scroll directly to target section
-      if (item.id === "hero") {
+      if (targetId === "hero") {
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
-        const el = document.getElementById(item.id);
+        const el = document.getElementById(targetId);
         if (el) {
           const top = el.getBoundingClientRect().top + window.scrollY - 80;
           window.scrollTo({ top, behavior: "smooth" });
         }
       }
 
-      // 6. Release lock after smooth scroll completes
-      scrollLockTimeoutRef.current = setTimeout(() => {
-        isClickScrollingRef.current = false;
-      }, 750);
+      // Precision arrival monitor: automatically restores enlarged header at top without mouse move
+      let lastScrollY = window.scrollY;
+      let settledFrames = 0;
+
+      const monitorScrollArrival = () => {
+        const y = window.scrollY;
+
+        // If target is hero and reached top
+        if (targetId === "hero" && y <= 25) {
+          scrolledRef.current = false;
+          setScrolled(false);
+          isClickScrollingRef.current = false;
+          clickTargetRef.current = null;
+          return;
+        }
+
+        // Settled detection
+        if (Math.abs(y - lastScrollY) < 1) {
+          settledFrames++;
+          if (settledFrames >= 4) {
+            isClickScrollingRef.current = false;
+            clickTargetRef.current = null;
+            const atTop = y <= 25;
+            scrolledRef.current = !atTop;
+            setScrolled(!atTop);
+            return;
+          }
+        } else {
+          settledFrames = 0;
+          lastScrollY = y;
+        }
+
+        scrollMonitorRafRef.current = requestAnimationFrame(monitorScrollArrival);
+      };
+
+      scrollMonitorRafRef.current = requestAnimationFrame(monitorScrollArrival);
     } else {
       activeSectionRef.current = item.id;
       setLocalActiveSection(item.id);
@@ -308,19 +386,7 @@ export function Navbar() {
   const handleLogoClick = (e) => {
     if (pathname === "/") {
       e.preventDefault();
-      activeSectionRef.current = "hero";
-      setLocalActiveSection("hero");
-      scrolledRef.current = false;
-      setScrolled(false);
-      isClickScrollingRef.current = true;
-      if (scrollLockTimeoutRef.current) clearTimeout(scrollLockTimeoutRef.current);
-      if (typeof window !== "undefined") {
-        window.history.replaceState(null, "", "#hero");
-      }
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      scrollLockTimeoutRef.current = setTimeout(() => {
-        isClickScrollingRef.current = false;
-      }, 750);
+      handleNavClick(e, { id: "hero" });
     } else {
       activeSectionRef.current = "hero";
       setLocalActiveSection("hero");
@@ -373,8 +439,8 @@ export function Navbar() {
               <Image
                 src="/Only Logo.png"
                 alt="BizzMate Logo"
-                width={28}
-                height={28}
+                fill
+                sizes="28px"
                 className="object-contain"
                 priority
               />
@@ -399,14 +465,36 @@ export function Navbar() {
           className="flex items-center justify-start shrink-0 z-10 will-change-transform"
         >
           {/* Nav Items Pill: EXACT same height and buttons padding in both states */}
-          <div className="flex items-center gap-1 relative rounded-full p-1 sm:p-1.5 border border-neutral-200/90 bg-[#f5f5f5]/95 shadow-xs">
+          <div
+            ref={pillContainerRef}
+            className="flex items-center gap-1 relative rounded-full p-1 sm:p-1.5 border border-neutral-200/90 bg-[#f5f5f5]/95 shadow-xs"
+          >
+            {/* Single continuous hardware-accelerated gliding indicator */}
+            <motion.div
+              className="absolute left-0 top-0 rounded-full bg-brand-violet shadow-sm pointer-events-none z-0"
+              initial={false}
+              animate={{
+                x: indicatorStyle.x,
+                width: indicatorStyle.width,
+                opacity: indicatorStyle.ready ? 1 : 0,
+              }}
+              transition={{
+                duration: 0.24,
+                ease: CUBIC_EASE,
+              }}
+              style={{
+                top: indicatorStyle.top,
+                height: indicatorStyle.height,
+              }}
+            />
+
             {NAV_ITEMS.map((item) => {
               const isActive = activeSection === item.id;
 
               return (
                 <div
                   key={item.id}
-                  className="relative"
+                  className="relative z-10"
                   onMouseEnter={item.hasDropdown ? handleMouseEnterProjects : undefined}
                   onMouseLeave={item.hasDropdown ? handleMouseLeaveProjects : undefined}
                 >
@@ -414,7 +502,7 @@ export function Navbar() {
                     href={item.href}
                     id={`nav-item-${item.id}`}
                     onClick={(e) => handleNavClick(e, item)}
-                    className={`relative z-10 rounded-full font-semibold transition-colors duration-200 flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm ${
+                    className={`relative z-10 rounded-full font-semibold flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm select-none transition-colors duration-100 ${
                       isActive
                         ? "text-white"
                         : "text-neutral-700 hover:text-neutral-950"
@@ -429,18 +517,6 @@ export function Navbar() {
                       />
                     )}
                   </Link>
-
-                  {/* Smooth Gliding Purple Pill Active Indicator with Zero Bounce */}
-                  {isActive && (
-                    <motion.div
-                      layoutId="navbar-active-indicator"
-                      className="absolute inset-0 rounded-full bg-brand-violet shadow-sm"
-                      transition={{
-                        duration: 0.22,
-                        ease: CUBIC_EASE,
-                      }}
-                    />
-                  )}
 
                   {/* Projects Hover Dropdown: 3 Featured Projects + View All Projects */}
                   {item.hasDropdown && (
@@ -544,8 +620,8 @@ export function Navbar() {
               <Image
                 src="/Only Logo.png"
                 alt="BizzMate Logo"
-                width={64}
-                height={64}
+                fill
+                sizes="(max-width: 640px) 32px, 36px"
                 className="object-contain"
                 priority
               />

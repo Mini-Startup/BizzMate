@@ -129,6 +129,9 @@ export function CtaSection() {
                     <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
                       type="text"
+                      id="cta-input-name"
+                      name="name"
+                      autoComplete="name"
                       required
                       placeholder="Your Name"
                       value={formData.name}
@@ -143,6 +146,9 @@ export function CtaSection() {
                     <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
                       type="email"
+                      id="cta-input-email"
+                      name="email"
+                      autoComplete="email"
                       required
                       placeholder="Work Email"
                       value={formData.email}
@@ -157,6 +163,9 @@ export function CtaSection() {
                     <Building className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
                       type="text"
+                      id="cta-input-company"
+                      name="company"
+                      autoComplete="organization"
                       placeholder="Company Name (Optional)"
                       value={formData.company}
                       onChange={(e) =>

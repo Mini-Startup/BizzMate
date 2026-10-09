@@ -44,6 +44,20 @@ const themes = {
     cardStroke: "#E0E0E0",
     cardLineFill: "#D4D4D4",
     cardInsetColor: "0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0",
+  },
+
+  violet: {
+    backFill: "#a84bff",
+    backInsetColor: "0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.35 0",
+    backInsetShadow: "inset 0 0 6px 2px rgba(255,255,255,0.35)",
+    flapFill: "#8e34e6",
+    flapFillOpacity: 0.5,
+    flapStroke: "#c27bff",
+    flapInsetColor: "0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.15 0",
+    cardFill: "#ffffff",
+    cardStroke: "#e2e8f0",
+    cardLineFill: "#c084fc",
+    cardInsetColor: "0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0",
   }
 };
 
