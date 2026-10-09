@@ -3,8 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const CANVAS = 220;
-const ORB_R = 64;
+const ORB_R = 74;
 const TAU = Math.PI * 2;
 
 function mulberry32(a) {
@@ -17,6 +16,7 @@ function mulberry32(a) {
   };
 }
 
+// 3D sphere points distribution — identical to Option 1
 const RINGS = 16;
 const DOT_LIST = (() => {
   const rand = mulberry32(7);
@@ -47,7 +47,7 @@ const DU = Float32Array.from(DOT_LIST, (d) => d.u);
 const DS = Float32Array.from(DOT_LIST, (d) => d.seed);
 
 export default function LoadingOption2({ onComplete }) {
-  // Phases: "thinking" -> "warp_in" -> "done"
+  // Phases: "thinking" -> "warp_in" -> "reveal" -> "done"
   const [phase, setPhase] = useState("thinking");
   const canvasRef = useRef(null);
   const phaseRef = useRef("thinking");
@@ -59,11 +59,21 @@ export default function LoadingOption2({ onComplete }) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
-    const displaySize = 440;
-    canvas.width = displaySize * dpr;
-    canvas.height = displaySize * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    let dpr = Math.min(2, window.devicePixelRatio || 1);
+
+    const resize = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    resize();
+    window.addEventListener("resize", resize);
 
     const SX = new Float32Array(N);
     const SY = new Float32Array(N);
@@ -88,13 +98,13 @@ export default function LoadingOption2({ onComplete }) {
 
     const CP = Math.cos(0.35);
     const SP = Math.sin(0.35);
-    const C0 = displaySize / 2;
 
     let lastProgTime = performance.now();
 
     const render = () => {
-      if (isCancelled) return;
-      ctx.clearRect(0, 0, displaySize, displaySize);
+      if (isCancelled || phaseRef.current === "done") return;
+
+      ctx.clearRect(0, 0, width, height);
 
       const dt = 0.016;
       time += dt;
@@ -129,16 +139,19 @@ export default function LoadingOption2({ onComplete }) {
       const f2z = Math.cos(b2) * Math.sin(a2);
       const lat = Math.sin(time * 2.2);
 
-      // Camera acceleration inside orb
-      if (phaseRef.current === "warp_in") {
+      // Camera acceleration directly inside the orb
+      if (phaseRef.current === "warp_in" || phaseRef.current === "reveal") {
         warpTime += dt;
-        const t = Math.min(1, warpTime / 1.05);
-        const easeInExpo = t === 0 ? 0 : Math.pow(2, 10 * t - 10);
-        cameraZ = Math.max(-0.5, 2.8 - easeInExpo * 3.3);
+        const t = Math.min(1, warpTime / 0.75);
+        const easeInQuad = t * t;
+        cameraZ = 2.8 - easeInQuad * 3.4;
       }
 
       const cyw = Math.cos(rot);
       const syw = Math.sin(rot);
+
+      const C0X = width / 2;
+      const C0Y = height / 2;
 
       for (let n = 0; n < N; n++) {
         const dx = DX[n];
@@ -178,7 +191,6 @@ export default function LoadingOption2({ onComplete }) {
         const y2 = dy * CP - z1 * SP;
         const z2 = dy * SP + z1 * CP;
 
-        // Dynamic perspective projection
         const distFromCamera = cameraZ - z2;
         if (distFromCamera <= 0.05) {
           SAlpha[n] = 0;
@@ -191,29 +203,26 @@ export default function LoadingOption2({ onComplete }) {
         const ox = x1 * ORB_R * f;
         const oy = -y2 * ORB_R * f;
 
-        SX[n] = C0 + ox;
-        SY[n] = C0 + oy;
+        SX[n] = C0X + ox;
+        SY[n] = C0Y + oy;
         SD[n] = depth;
 
         const isWave = l > 0.16;
         SIsWave[n] = isWave ? 1 : 0;
 
-        // Micro-dots expand during warp rush
-        const warpSizeBoost = Math.max(1, f * 0.7);
-        if (isWave) {
-          SR[n] = (1.05 * (0.45 + 0.65 * depth) * f + 0.65 * l) * warpSizeBoost;
-          SAlpha[n] = Math.min(1, 0.8 + 0.2 * depth);
-        } else {
-          SR[n] = 0.95 * (0.4 + 0.6 * depth) * f * warpSizeBoost;
-          SAlpha[n] = Math.min(0.9, 0.28 + 0.38 * depth * depth);
-        }
+        // In 3D warp, particles expand noticeably (up to 12.5px) to portray true depth
+        const isWarpingState = phaseRef.current === "warp_in" || phaseRef.current === "reveal";
+        const warpBoost = isWarpingState ? Math.max(1, f * 0.72) : 1;
+        const maxRadius = isWarpingState ? 12.5 : 2.6;
 
-        // Smooth dissipation when rushing off-screen
-        if (phaseRef.current === "warp_in") {
-          const distFromCenter = Math.sqrt(ox * ox + oy * oy);
-          if (distFromCenter > displaySize * 0.65) {
-            SAlpha[n] *= Math.max(0, 1 - (distFromCenter - displaySize * 0.65) / (displaySize * 0.35));
-          }
+        if (isWave) {
+          const rawR = (1.22 * (0.45 + 0.65 * depth) * f + 0.75 * l) * warpBoost;
+          SR[n] = Math.min(maxRadius, rawR);
+          SAlpha[n] = Math.min(1, 0.85 + 0.15 * depth);
+        } else {
+          const rawR = 1.12 * (0.4 + 0.6 * depth) * f * warpBoost;
+          SR[n] = Math.min(maxRadius, rawR);
+          SAlpha[n] = Math.min(0.9, 0.28 + 0.38 * depth * depth);
         }
       }
 
@@ -229,7 +238,7 @@ export default function LoadingOption2({ onComplete }) {
             // Active Deep Brand Purple wave (#7c3aed)
             ctx.fillStyle = `rgba(124, 58, 237, ${SAlpha[n].toFixed(2)})`;
           } else {
-            // Static Light Lavender-Purple cage dots (#c4b5fd)
+            // Static Light Lavender-Purple cage dots (#c4b5fd / #a78bfa)
             ctx.fillStyle = `rgba(167, 139, 250, ${SAlpha[n].toFixed(2)})`;
           }
           ctx.fill();
@@ -243,32 +252,40 @@ export default function LoadingOption2({ onComplete }) {
 
     render();
 
-    // Timeline:
-    // 0ms - 2200ms: Orb rotating with delicate purple thinking waves
-    // 2200ms - 3400ms: Camera rushes inside orb, particles expand and rush outward
-    // 3400ms: Done, reveal website
+    // Sequence:
+    // 0ms - 2000ms: Normal thinking state (identical size & look to Option 1)
+    // 2000ms: Camera rushes inside orb, particles grow larger and scatter outward in true 3D
+    // 2200ms - 2750ms: BOTH particles and loading background fade out in unison to reveal hero section
+    // 2750ms: Done, unmounts cleanly
     const t1 = setTimeout(() => {
       phaseRef.current = "warp_in";
       setPhase("warp_in");
-    }, 2200);
+    }, 2000);
 
     const t2 = setTimeout(() => {
+      phaseRef.current = "reveal";
+      setPhase("reveal");
+    }, 2200);
+
+    const t3 = setTimeout(() => {
       phaseRef.current = "done";
       setPhase("done");
       if (onComplete) onComplete();
-    }, 3400);
+    }, 2750);
 
     return () => {
       isCancelled = true;
       if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("resize", resize);
       clearTimeout(t1);
       clearTimeout(t2);
+      clearTimeout(t3);
     };
   }, [onComplete]);
 
   if (phase === "done") return null;
 
-  const isWarping = phase === "warp_in";
+  const isRevealing = phase === "reveal";
 
   return (
     <AnimatePresence>
@@ -276,14 +293,13 @@ export default function LoadingOption2({ onComplete }) {
         key="loading-screen-option-2"
         initial={{ opacity: 1 }}
         animate={{
-          opacity: isWarping ? 0 : 1,
+          opacity: isRevealing ? 0 : 1,
         }}
         transition={{
-          duration: 0.9,
-          delay: isWarping ? 0.3 : 0,
+          duration: 0.52,
           ease: [0.16, 1, 0.3, 1],
         }}
-        className="fixed inset-0 z-[100] overflow-hidden flex items-center justify-center select-none bg-white"
+        className="fixed inset-0 z-[100] overflow-hidden flex items-center justify-center select-none bg-white pointer-events-none"
       >
         {/* Mild light-mode gradient */}
         <div
@@ -297,35 +313,23 @@ export default function LoadingOption2({ onComplete }) {
         {/* Soft atmospheric ambient light */}
         <div className="absolute -top-32 -left-32 w-[600px] h-[600px] rounded-full bg-[#a84bff]/10 blur-[120px] pointer-events-none" />
 
-        {/* Soft violet light bloom that expands when camera enters orb */}
-        <AnimatePresence>
-          {isWarping && (
-            <motion.div
-              initial={{ scale: 0.2, opacity: 0 }}
-              animate={{ scale: 3.2, opacity: [0, 0.7, 0] }}
-              transition={{ duration: 1.0, ease: "easeOut" }}
-              className="absolute w-64 h-64 rounded-full bg-gradient-to-tr from-[#ede9fe] via-[#e0f2fe] to-white blur-3xl pointer-events-none z-0"
-            />
-          )}
-        </AnimatePresence>
+        {/* Fullscreen Warp Canvas: Fades out in exact synchronization with the background */}
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 w-full h-full pointer-events-none z-10"
+        />
 
-        {/* Center Fly-Through Canvas */}
-        <div className="relative flex flex-col items-center justify-center z-10">
-          <div className="relative w-[320px] h-[320px] flex items-center justify-center">
-            <canvas
-              ref={canvasRef}
-              style={{ width: 320, height: 320 }}
-              className="relative z-10"
-            />
-            {/* Subtle soft lavender halo behind canvas */}
-            <div className="absolute w-32 h-32 rounded-full bg-[#a84bff]/10 blur-xl pointer-events-none" />
-          </div>
+        {/* Subtle center purple halo (visible during thinking phase only) */}
+        {phase === "thinking" && (
+          <div className="absolute w-36 h-36 rounded-full bg-[#a84bff]/10 blur-xl pointer-events-none z-0" />
+        )}
 
-          {/* Status text */}
+        {/* Status text: smoothly fades out when warp begins */}
+        <div className="absolute bottom-[28%] flex flex-col items-center gap-1.5 z-20 pointer-events-none">
           <motion.div
-            animate={{ opacity: isWarping ? 0 : 1, y: isWarping ? -10 : 0 }}
-            transition={{ duration: 0.25 }}
-            className="mt-4 flex flex-col items-center gap-1.5"
+            animate={{ opacity: phase === "thinking" ? 1 : 0, y: phase === "thinking" ? 0 : -12 }}
+            transition={{ duration: 0.2 }}
+            className="flex flex-col items-center gap-1.5"
           >
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-brand-violet animate-pulse" />

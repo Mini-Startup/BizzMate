@@ -4,8 +4,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check } from "lucide-react";
 
-const CANVAS = 220;
-const ORB_R = 64;
+const CANVAS = 250;
+const ORB_R = 74;
 const TAU = Math.PI * 2;
 
 function mulberry32(a) {
@@ -253,18 +253,19 @@ export default function LoadingOption1({ onComplete }) {
         const isWave = l > 0.16;
         SIsWave[n] = isWave ? 1 : 0;
 
-        // Micro-dot sizing from loading_orb.md: SR around 0.9px - 2.0px
+        // Zero out all dots cleanly when condensing into badge so zero particles leak
+        const badgeFade = Math.max(0, 1 - condenseProgress * 1.4);
         if (isSwept) {
-          SR[n] = (1.05 * (0.45 + 0.65 * depth) * f + 0.7) * (1 - condenseProgress * 0.25);
-          SAlpha[n] = Math.min(1, 0.7 + 0.3 * depth);
+          SR[n] = (1.2 * (0.45 + 0.65 * depth) * f + 0.8) * badgeFade;
+          SAlpha[n] = Math.min(1, 0.7 + 0.3 * depth) * badgeFade;
         } else if (isWave) {
           // Sharp active wave dot
-          SR[n] = 1.05 * (0.45 + 0.65 * depth) * f + 0.65 * l;
-          SAlpha[n] = Math.min(1, 0.8 + 0.2 * depth);
+          SR[n] = (1.22 * (0.45 + 0.65 * depth) * f + 0.75 * l) * badgeFade;
+          SAlpha[n] = Math.min(1, 0.82 + 0.18 * depth) * badgeFade;
         } else {
           // Static soft lavender-purple cage dot
-          SR[n] = 0.95 * (0.4 + 0.6 * depth) * f;
-          SAlpha[n] = (0.28 + 0.38 * depth * depth) * (1 - condenseProgress);
+          SR[n] = 1.12 * (0.4 + 0.6 * depth) * f * badgeFade;
+          SAlpha[n] = (0.28 + 0.38 * depth * depth) * badgeFade;
         }
       }
 
@@ -402,20 +403,22 @@ export default function LoadingOption1({ onComplete }) {
             isShrinking ? "opacity-0 pointer-events-none" : "opacity-100"
           }`}
         >
-          <div className="relative w-[220px] h-[220px] flex items-center justify-center">
-            {/* 3D Dotted Canvas */}
+          <div className="relative w-[250px] h-[250px] flex items-center justify-center">
+            {/* 3D Dotted Canvas: completely fades to 0 when badge is active so zero particles leak */}
             <canvas
               ref={canvasRef}
               style={{ width: CANVAS, height: CANVAS }}
-              className={`relative z-10 transition-opacity duration-200 ${
-                phase === "violet_badge" ? "opacity-35 scale-95" : "opacity-100"
+              className={`relative z-10 transition-all duration-300 ${
+                phase === "violet_badge" || phase === "shrink"
+                  ? "opacity-0 scale-75 pointer-events-none"
+                  : "opacity-100 scale-100"
               }`}
             />
 
             {/* Subtle soft lavender glow behind canvas */}
             <div className="absolute w-32 h-32 rounded-full bg-[#a84bff]/10 blur-xl pointer-events-none" />
 
-            {/* Phase 2B: Solid Brand Violet Badge Pop with White Check Icon */}
+            {/* Phase 2B: Solid Brand Violet Badge with Animated SVG Check Icon */}
             <AnimatePresence>
               {phase === "violet_badge" && (
                 <motion.div
@@ -425,24 +428,28 @@ export default function LoadingOption1({ onComplete }) {
                   exit={{ scale: 0.8, opacity: 0 }}
                   transition={{
                     type: "spring",
-                    stiffness: 450,
+                    stiffness: 420,
                     damping: 24,
                     mass: 0.75,
                   }}
-                  className="absolute z-20 w-20 h-20 rounded-full bg-brand-violet flex items-center justify-center shadow-xl shadow-brand-violet/30 border border-white/60"
+                  className="absolute z-20 w-24 h-24 rounded-full bg-brand-violet flex items-center justify-center shadow-2xl shadow-brand-violet/40 ring-4 ring-brand-violet/25"
                 >
-                  <motion.div
-                    initial={{ scale: 0, rotate: -15 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{
-                      delay: 0.08,
-                      type: "spring",
-                      stiffness: 500,
-                      damping: 22,
-                    }}
+                  <svg
+                    className="w-11 h-11 text-white"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   >
-                    <Check className="w-9 h-9 text-white stroke-[3.5]" />
-                  </motion.div>
+                    <motion.path
+                      d="M5 13l4 4L19 7"
+                      initial={{ pathLength: 0, opacity: 0 }}
+                      animate={{ pathLength: 1, opacity: 1 }}
+                      transition={{ duration: 0.35, ease: "easeOut", delay: 0.1 }}
+                    />
+                  </svg>
                 </motion.div>
               )}
             </AnimatePresence>
