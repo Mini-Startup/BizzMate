@@ -44,7 +44,7 @@ const CUBIC_EASE = [0.16, 1, 0.3, 1];
 const SECTION_IDS = ["hero", "services", "why-us", "projects", "founders", "faqs"];
 
 const NAV_ITEMS = [
-  { id: "hero", label: "Home", href: "/#hero" },
+  { id: "hero", label: "Home", href: "/" },
   { id: "services", label: "Services", href: "/#services" },
   { id: "why-us", label: "Why Us", href: "/#why-us" },
   {
@@ -62,7 +62,8 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [localActiveSection, setLocalActiveSection] = useState("hero");
 
-  const activeSection = pathname.startsWith("/projects") ? "projects" : localActiveSection;
+  const isProjectsRoute = pathname.startsWith("/projects");
+  const activeSection = isProjectsRoute ? "projects" : localActiveSection;
 
   const activeSectionRef = useRef(activeSection);
   const scrolledRef = useRef(false);
@@ -70,6 +71,8 @@ export function Navbar() {
   const clickTargetRef = useRef(null);
   const scrollMonitorRafRef = useRef(null);
   const dropdownTimeoutRef = useRef(null);
+  const hashDwellTimeoutRef = useRef(null);
+  const clickUnlockTimerRef = useRef(null);
 
   const [projectsDropdownOpen, setProjectsDropdownOpen] = useState(false);
   const [offsets, setOffsets] = useState({ navX: 0, ctaX: 0 });
@@ -152,23 +155,33 @@ export function Navbar() {
 
   // Master unified listener: Scroll spy, dock hysteresis, and layout sync with 0 duplicate renders
   useEffect(() => {
-    if (pathname !== "/") return;
-
     let rafId = null;
 
     const handleInitial = () => {
       updateOffsets();
-      if (window.location.hash) {
-        const h = window.location.hash.replace("#", "");
-        if (SECTION_IDS.includes(h)) {
-          activeSectionRef.current = h;
-          setLocalActiveSection(h);
-          updateIndicatorPosition(h);
+
+      if (isProjectsRoute) {
+        if (typeof window !== "undefined" && window.location.hash) {
+          if (window.location.hash === "#hero") {
+            window.history.replaceState(null, "", window.location.pathname + window.location.search);
+          }
+        }
+        activeSectionRef.current = "projects";
+        setLocalActiveSection("projects");
+        updateIndicatorPosition("projects");
+      } else {
+        if (window.location.hash) {
+          const h = window.location.hash.replace("#", "");
+          if (SECTION_IDS.includes(h)) {
+            activeSectionRef.current = h;
+            setLocalActiveSection(h);
+            updateIndicatorPosition(h);
+          } else {
+            updateIndicatorPosition("hero");
+          }
         } else {
           updateIndicatorPosition("hero");
         }
-      } else {
-        updateIndicatorPosition("hero");
       }
 
       if (window.scrollY > 35) {
@@ -182,16 +195,12 @@ export function Navbar() {
     const updateScrollState = () => {
       const y = window.scrollY;
 
-      // 1. If currently programmatic scrolling from nav click:
+      // 1. If currently programmatic scrolling from nav click, lock out spy updates completely
       if (isClickScrollingRef.current) {
-        if (clickTargetRef.current === "hero" && y <= 25 && scrolledRef.current) {
-          scrolledRef.current = false;
-          setScrolled(false);
-        }
         return;
       }
 
-      // 2. Dock hysteresis
+      // 2. Dock hysteresis (applies across all pages)
       if (y > 35) {
         if (!scrolledRef.current) {
           scrolledRef.current = true;
@@ -204,29 +213,25 @@ export function Navbar() {
         }
       }
 
-      // 3. Bottom of page check (activate last section faqs)
+      // If not on homepage, do not run home section spy
+      if (pathname !== "/") return;
+
+      // 3. Section spy: reading line
+      let current = "hero";
       const isAtBottom =
         window.innerHeight + y >= document.documentElement.scrollHeight - 60;
       if (isAtBottom) {
-        if (activeSectionRef.current !== "faqs") {
-          activeSectionRef.current = "faqs";
-          setLocalActiveSection("faqs");
-          updateIndicatorPosition("faqs");
-          window.history.replaceState(null, "", "#faqs");
-        }
-        return;
-      }
-
-      // 4. Section spy: reading line
-      let current = "hero";
-      for (let i = SECTION_IDS.length - 1; i >= 0; i--) {
-        const id = SECTION_IDS[i];
-        const el = document.getElementById(id);
-        if (el) {
-          const top = el.getBoundingClientRect().top;
-          if (top <= 140) {
-            current = id;
-            break;
+        current = "faqs";
+      } else {
+        for (let i = SECTION_IDS.length - 1; i >= 0; i--) {
+          const id = SECTION_IDS[i];
+          const el = document.getElementById(id);
+          if (el) {
+            const top = el.getBoundingClientRect().top;
+            if (top <= 140) {
+              current = id;
+              break;
+            }
           }
         }
       }
@@ -235,9 +240,27 @@ export function Navbar() {
         activeSectionRef.current = current;
         setLocalActiveSection(current);
         updateIndicatorPosition(current);
-        if (window.location.hash.replace("#", "") !== current) {
-          window.history.replaceState(null, "", `#${current}`);
+
+        // Debounced / Dwell-based URL update (300ms):
+        // Only updates the URL when the user dwells on a section.
+        // Single continuous waves from bottom to top or top to bottom bypass intermediate hashes!
+        if (hashDwellTimeoutRef.current) {
+          clearTimeout(hashDwellTimeoutRef.current);
         }
+
+        hashDwellTimeoutRef.current = setTimeout(() => {
+          if (pathname === "/" && !isClickScrollingRef.current) {
+            const destHash = current === "hero" ? "" : `#${current}`;
+            const curHash = window.location.hash;
+            if (curHash !== destHash) {
+              window.history.replaceState(
+                null,
+                "",
+                destHash ? destHash : window.location.pathname
+              );
+            }
+          }
+        }, 300);
       }
     };
 
@@ -260,16 +283,19 @@ export function Navbar() {
     };
 
     const handleHashChange = () => {
-      const h = window.location.hash.replace("#", "");
-      if (h && SECTION_IDS.includes(h)) {
-        activeSectionRef.current = h;
-        setLocalActiveSection(h);
-        updateIndicatorPosition(h);
+      if (pathname === "/") {
+        const h = window.location.hash.replace("#", "");
+        if (h && SECTION_IDS.includes(h)) {
+          activeSectionRef.current = h;
+          setLocalActiveSection(h);
+          updateIndicatorPosition(h);
+        }
       }
     };
 
     const handleResize = () => {
       updateOffsets();
+      updateIndicatorPosition(activeSectionRef.current);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -277,19 +303,24 @@ export function Navbar() {
     window.addEventListener("resize", handleResize, { passive: true });
     window.addEventListener("hashchange", handleHashChange);
     if (typeof document !== "undefined" && document.fonts) {
-      document.fonts.ready.then(updateOffsets);
+      document.fonts.ready.then(() => {
+        updateOffsets();
+        updateIndicatorPosition(activeSectionRef.current);
+      });
     }
 
     return () => {
       cancelAnimationFrame(mountRaf);
       if (rafId) cancelAnimationFrame(rafId);
       if (scrollMonitorRafRef.current) cancelAnimationFrame(scrollMonitorRafRef.current);
+      if (hashDwellTimeoutRef.current) clearTimeout(hashDwellTimeoutRef.current);
+      if (clickUnlockTimerRef.current) clearTimeout(clickUnlockTimerRef.current);
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("scrollend", handleScrollEnd);
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("hashchange", handleHashChange);
     };
-  }, [pathname, updateIndicatorPosition, updateOffsets]);
+  }, [pathname, isProjectsRoute, updateIndicatorPosition, updateOffsets]);
 
   // Clean up any timeouts on unmount
   useEffect(() => {
@@ -320,66 +351,64 @@ export function Navbar() {
       setLocalActiveSection(targetId);
       updateIndicatorPosition(targetId);
 
+      // Cancel any pending debounced scroll hash updates
+      if (hashDwellTimeoutRef.current) {
+        clearTimeout(hashDwellTimeoutRef.current);
+      }
+
+      // Immediately set the target URL directly without intermediate steps
+      const newHash = targetId === "hero" ? "" : `#${targetId}`;
+      if (typeof window !== "undefined") {
+        window.history.replaceState(null, "", newHash ? newHash : window.location.pathname);
+      }
+
       isClickScrollingRef.current = true;
       clickTargetRef.current = targetId;
 
       if (scrollMonitorRafRef.current) {
         cancelAnimationFrame(scrollMonitorRafRef.current);
       }
-
-      if (typeof window !== "undefined") {
-        window.history.replaceState(null, "", `#${targetId}`);
+      if (clickUnlockTimerRef.current) {
+        clearTimeout(clickUnlockTimerRef.current);
       }
 
+      let targetY = 0;
       if (targetId === "hero") {
+        targetY = 0;
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
         const el = document.getElementById(targetId);
         if (el) {
-          const top = el.getBoundingClientRect().top + window.scrollY - 80;
-          window.scrollTo({ top, behavior: "smooth" });
+          targetY = Math.max(0, el.getBoundingClientRect().top + window.scrollY - 80);
+          window.scrollTo({ top: targetY, behavior: "smooth" });
         }
       }
 
-      // Precision arrival monitor: automatically restores enlarged header at top without mouse move
-      let lastScrollY = window.scrollY;
-      let settledFrames = 0;
-
-      const monitorScrollArrival = () => {
-        const y = window.scrollY;
-
-        // If target is hero and reached top
-        if (targetId === "hero" && y <= 25) {
-          scrolledRef.current = false;
-          setScrolled(false);
-          isClickScrollingRef.current = false;
-          clickTargetRef.current = null;
-          return;
+      // Unlock click scrolling when arrival is detected
+      const unlockClickScrolling = () => {
+        isClickScrollingRef.current = false;
+        clickTargetRef.current = null;
+        if (clickUnlockTimerRef.current) {
+          clearTimeout(clickUnlockTimerRef.current);
+          clickUnlockTimerRef.current = null;
         }
-
-        // Settled detection
-        if (Math.abs(y - lastScrollY) < 1) {
-          settledFrames++;
-          if (settledFrames >= 4) {
-            isClickScrollingRef.current = false;
-            clickTargetRef.current = null;
-            const atTop = y <= 25;
-            scrolledRef.current = !atTop;
-            setScrolled(!atTop);
-            return;
-          }
-        } else {
-          settledFrames = 0;
-          lastScrollY = y;
-        }
-
-        scrollMonitorRafRef.current = requestAnimationFrame(monitorScrollArrival);
+        window.removeEventListener("scrollend", unlockClickScrolling);
+        const atTop = window.scrollY <= 25;
+        scrolledRef.current = !atTop;
+        setScrolled(!atTop);
       };
 
-      scrollMonitorRafRef.current = requestAnimationFrame(monitorScrollArrival);
+      window.addEventListener("scrollend", unlockClickScrolling, { once: true });
+      // Fallback timer: 900ms ensures full smooth scroll completion even if scrollend not supported
+      clickUnlockTimerRef.current = setTimeout(unlockClickScrolling, 900);
     } else {
-      activeSectionRef.current = item.id;
-      setLocalActiveSection(item.id);
+      if (item.id === "projects") {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        activeSectionRef.current = item.id;
+        setLocalActiveSection(item.id);
+      }
     }
   };
 
@@ -431,7 +460,7 @@ export function Navbar() {
           className="absolute z-20 hidden lg:flex items-center"
         >
           <Link
-            href="/#hero"
+            href="/"
             onClick={handleLogoClick}
             className="flex items-center gap-2 group transition-transform hover:scale-105"
           >
@@ -612,7 +641,7 @@ export function Navbar() {
           className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center shrink-0 z-10"
         >
           <Link
-            href="/#hero"
+            href="/"
             onClick={handleLogoClick}
             className="flex items-center gap-2 group transition-transform hover:scale-105"
           >
