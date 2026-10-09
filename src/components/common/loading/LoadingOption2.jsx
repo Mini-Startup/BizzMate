@@ -3,8 +3,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const CANVAS = 260;
-const ORB_R = 72;
+const CANVAS = 220;
+const ORB_R = 64;
 const TAU = Math.PI * 2;
 
 function mulberry32(a) {
@@ -17,14 +17,14 @@ function mulberry32(a) {
   };
 }
 
-const RINGS = 18;
+const RINGS = 16;
 const DOT_LIST = (() => {
   const rand = mulberry32(7);
   const out = [];
   for (let k = 0; k < RINGS; k++) {
     const y = 1 - ((k + 0.5) / RINGS) * 2;
     const r = Math.sqrt(Math.max(0, 1 - y * y));
-    const m = Math.max(4, Math.round(32 * r));
+    const m = Math.max(4, Math.round(30 * r));
     for (let j = 0; j < m; j++) {
       const a = (j / m) * TAU + k * 0.35;
       out.push({
@@ -60,8 +60,7 @@ export default function LoadingOption2({ onComplete }) {
     if (!ctx) return;
 
     const dpr = Math.min(2, window.devicePixelRatio || 1);
-    // Canvas covers full container or expanded size for warp flight
-    const displaySize = 480;
+    const displaySize = 440;
     canvas.width = displaySize * dpr;
     canvas.height = displaySize * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -78,7 +77,7 @@ export default function LoadingOption2({ onComplete }) {
     let raf = 0;
     let isCancelled = false;
 
-    // 4 Lighting wave programs
+    // 4 wave programs from loading_orb.md
     let prog = 0;
     const pw = [1, 0, 0, 0];
     const lit = new Float32Array(N);
@@ -99,7 +98,7 @@ export default function LoadingOption2({ onComplete }) {
 
       const dt = 0.016;
       time += dt;
-      rot += 0.012;
+      rot += 0.014;
 
       // Cycle wave programs
       const now = performance.now();
@@ -115,8 +114,8 @@ export default function LoadingOption2({ onComplete }) {
       }
 
       const decay = Math.exp(-dt / 0.45);
-      const h0 = (time * 280) % N;
-      const h3 = (time * 440) % N;
+      const h0 = (time * 260) % N;
+      const h3 = (time * 420) % N;
       const a1 = time * 0.8;
       const b1 = Math.sin(time * 0.5) * 0.9;
       const f1x = Math.cos(b1) * Math.cos(a1);
@@ -133,10 +132,9 @@ export default function LoadingOption2({ onComplete }) {
       // Camera acceleration inside orb
       if (phaseRef.current === "warp_in") {
         warpTime += dt;
-        // Exponential camera rush inwards
-        const t = Math.min(1, warpTime / 1.1);
+        const t = Math.min(1, warpTime / 1.05);
         const easeInExpo = t === 0 ? 0 : Math.pow(2, 10 * t - 10);
-        cameraZ = Math.max(-0.6, 2.8 - easeInExpo * 3.4);
+        cameraZ = Math.max(-0.5, 2.8 - easeInExpo * 3.3);
       }
 
       const cyw = Math.cos(rot);
@@ -180,10 +178,9 @@ export default function LoadingOption2({ onComplete }) {
         const y2 = dy * CP - z1 * SP;
         const z2 = dy * SP + z1 * CP;
 
-        // Dynamic perspective projection as camera flies inside
+        // Dynamic perspective projection
         const distFromCamera = cameraZ - z2;
         if (distFromCamera <= 0.05) {
-          // Particle has passed behind the camera
           SAlpha[n] = 0;
           continue;
         }
@@ -198,24 +195,24 @@ export default function LoadingOption2({ onComplete }) {
         SY[n] = C0 + oy;
         SD[n] = depth;
 
-        const isWave = l > 0.18;
+        const isWave = l > 0.16;
         SIsWave[n] = isWave ? 1 : 0;
 
-        // When warping, particles grow huge as they get close to the camera lens
-        const warpSizeBoost = Math.max(1, f * 0.85);
+        // Micro-dots expand during warp rush
+        const warpSizeBoost = Math.max(1, f * 0.7);
         if (isWave) {
-          SR[n] = (1.7 + 1.3 * depth + l * 0.8) * warpSizeBoost;
-          SAlpha[n] = Math.min(1, 0.85 + 0.15 * depth);
+          SR[n] = (1.05 * (0.45 + 0.65 * depth) * f + 0.65 * l) * warpSizeBoost;
+          SAlpha[n] = Math.min(1, 0.8 + 0.2 * depth);
         } else {
-          SR[n] = (1.1 + 0.8 * depth) * warpSizeBoost;
-          SAlpha[n] = Math.min(0.9, 0.28 + 0.35 * depth * depth);
+          SR[n] = 0.95 * (0.4 + 0.6 * depth) * f * warpSizeBoost;
+          SAlpha[n] = Math.min(0.9, 0.28 + 0.38 * depth * depth);
         }
 
-        // Fade out as they get past screen edges
+        // Smooth dissipation when rushing off-screen
         if (phaseRef.current === "warp_in") {
           const distFromCenter = Math.sqrt(ox * ox + oy * oy);
-          if (distFromCenter > displaySize * 0.7) {
-            SAlpha[n] *= Math.max(0, 1 - (distFromCenter - displaySize * 0.7) / (displaySize * 0.3));
+          if (distFromCenter > displaySize * 0.65) {
+            SAlpha[n] *= Math.max(0, 1 - (distFromCenter - displaySize * 0.65) / (displaySize * 0.35));
           }
         }
       }
@@ -229,9 +226,11 @@ export default function LoadingOption2({ onComplete }) {
           ctx.arc(SX[n], SY[n], SR[n], 0, TAU);
 
           if (SIsWave[n] === 1) {
-            ctx.fillStyle = `rgba(255, 255, 255, ${SAlpha[n].toFixed(2)})`;
+            // Active Deep Brand Purple wave (#7c3aed)
+            ctx.fillStyle = `rgba(124, 58, 237, ${SAlpha[n].toFixed(2)})`;
           } else {
-            ctx.fillStyle = `rgba(180, 168, 206, ${SAlpha[n].toFixed(2)})`;
+            // Static Light Lavender-Purple cage dots (#c4b5fd)
+            ctx.fillStyle = `rgba(167, 139, 250, ${SAlpha[n].toFixed(2)})`;
           }
           ctx.fill();
         }
@@ -244,9 +243,9 @@ export default function LoadingOption2({ onComplete }) {
 
     render();
 
-    // Sequence:
-    // 0ms - 2200ms: Orb thinking with white light waves
-    // 2200ms - 3400ms: Camera rushes inside orb, particles explode past screen edges
+    // Timeline:
+    // 0ms - 2200ms: Orb rotating with delicate purple thinking waves
+    // 2200ms - 3400ms: Camera rushes inside orb, particles expand and rush outward
     // 3400ms: Done, reveal website
     const t1 = setTimeout(() => {
       phaseRef.current = "warp_in";
@@ -280,56 +279,61 @@ export default function LoadingOption2({ onComplete }) {
           opacity: isWarping ? 0 : 1,
         }}
         transition={{
-          duration: 0.95,
-          delay: isWarping ? 0.35 : 0,
+          duration: 0.9,
+          delay: isWarping ? 0.3 : 0,
           ease: [0.16, 1, 0.3, 1],
         }}
-        style={{
-          background:
-            "radial-gradient(circle at 18% 18%, #281042 0%, #150927 45%, #0a0414 100%)",
-        }}
-        className="fixed inset-0 z-[100] overflow-hidden flex items-center justify-center select-none"
+        className="fixed inset-0 z-[100] overflow-hidden flex items-center justify-center select-none bg-white"
       >
-        {/* Soft atmospheric ambient light */}
-        <div className="absolute -top-32 -left-32 w-[600px] h-[600px] rounded-full bg-[#7c3aed]/15 blur-[120px] pointer-events-none" />
+        {/* Mild light-mode gradient */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 10% 10%, #ede9fe 0%, #f5f3ff 30%, #f0f7ff 65%, #ffffff 100%)",
+          }}
+        />
 
-        {/* Warp core portal bloom that expands when camera enters orb */}
+        {/* Soft atmospheric ambient light */}
+        <div className="absolute -top-32 -left-32 w-[600px] h-[600px] rounded-full bg-[#a84bff]/10 blur-[120px] pointer-events-none" />
+
+        {/* Soft violet light bloom that expands when camera enters orb */}
         <AnimatePresence>
           {isWarping && (
             <motion.div
               initial={{ scale: 0.2, opacity: 0 }}
-              animate={{ scale: 3.5, opacity: [0, 0.85, 0] }}
-              transition={{ duration: 1.1, ease: "easeOut" }}
-              className="absolute w-72 h-72 rounded-full bg-gradient-to-tr from-[#a84bff] via-[#6366f1] to-white blur-3xl pointer-events-none z-0"
+              animate={{ scale: 3.2, opacity: [0, 0.7, 0] }}
+              transition={{ duration: 1.0, ease: "easeOut" }}
+              className="absolute w-64 h-64 rounded-full bg-gradient-to-tr from-[#ede9fe] via-[#e0f2fe] to-white blur-3xl pointer-events-none z-0"
             />
           )}
         </AnimatePresence>
 
         {/* Center Fly-Through Canvas */}
         <div className="relative flex flex-col items-center justify-center z-10">
-          <div className="relative w-[340px] h-[340px] flex items-center justify-center">
+          <div className="relative w-[320px] h-[320px] flex items-center justify-center">
             <canvas
               ref={canvasRef}
-              style={{ width: 340, height: 340 }}
+              style={{ width: 320, height: 320 }}
               className="relative z-10"
             />
-            {/* Subtle soft purple halo behind canvas */}
-            <div className="absolute w-36 h-36 rounded-full bg-[#a84bff]/15 blur-2xl pointer-events-none" />
+            {/* Subtle soft lavender halo behind canvas */}
+            <div className="absolute w-32 h-32 rounded-full bg-[#a84bff]/10 blur-xl pointer-events-none" />
           </div>
 
-          {/* Status text: fades out when camera enters orb */}
+          {/* Status text */}
           <motion.div
             animate={{ opacity: isWarping ? 0 : 1, y: isWarping ? -10 : 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.25 }}
             className="mt-4 flex flex-col items-center gap-1.5"
           >
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#a84bff] animate-pulse" />
-              <span className="text-[11px] uppercase font-mono tracking-[0.28em] text-white/90 font-bold">
+              <span className="w-2 h-2 rounded-full bg-brand-violet animate-pulse" />
+              <span className="text-[11px] uppercase font-mono tracking-[0.25em] text-neutral-900 font-bold">
                 BIZZMATE // LOADING
               </span>
             </div>
-            <p className="text-[11px] font-mono text-purple-200/50 tracking-wide">
+            <p className="text-[11px] font-mono text-neutral-500 tracking-wide">
               Initializing software environment...
             </p>
           </motion.div>

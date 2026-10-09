@@ -408,6 +408,7 @@ export function Navbar() {
                 >
                   <Link
                     href={item.href}
+                    id={`nav-item-${item.id}`}
                     onClick={(e) => handleNavClick(e, item)}
                     className={`relative z-10 rounded-full font-semibold transition-colors duration-200 flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm ${
                       isActive
