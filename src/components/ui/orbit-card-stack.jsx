@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -42,6 +42,17 @@ const defaultItems = [
     href: "/projects/strata-cloud-platform",
   },
   {
+    name: "Hyperion AI",
+    role: "Developer Platform",
+    description: "Cinematic model launch experience generating 38,000 waitlist signups in 72 hours.",
+    accent: "#a84bff",
+    initials: "HY",
+    stat: "38K Signups",
+    tag: "Model Platform",
+    image: "/projects/hyperion-launch-platform.jpg",
+    href: "/projects/hyperion-launch-platform",
+  },
+  {
     name: "Explore Portfolio",
     role: "All Deployments",
     description: "Browse our complete index of client case studies, custom web apps, and AI workflows.",
@@ -58,15 +69,15 @@ function inRange(index, length) {
   return Math.min(Math.max(0, index), Math.max(0, length - 1));
 }
 
-function Portrait({ item }) {
+function Portrait({ item, isHovered }) {
   const shared =
     "relative flex aspect-[1.36] w-full overflow-hidden rounded-[1.45rem] border border-slate-200/80 bg-slate-100/60";
 
   if (item.isFolder) {
     return (
-      <div className={cn(shared, "items-center justify-center bg-linear-to-b from-purple-50/50 via-slate-50 to-slate-100 border-purple-200/60 overflow-hidden relative")}>
-        <div className="w-full h-full flex items-center justify-center p-2 transform scale-95 hover:scale-100 transition-transform duration-300">
-          <FolderComponent color="violet" size="sm" />
+      <div className="relative flex aspect-[1.36] w-full items-center justify-center rounded-[1.45rem] border border-purple-200/60 bg-linear-to-b from-purple-50/50 via-slate-50 to-slate-100 overflow-visible">
+        <div className="w-full h-full flex items-center justify-center p-2 pt-6 transform scale-95 transition-transform duration-300">
+          <FolderComponent color="violet" size="sm" isHovered={isHovered} />
         </div>
       </div>
     );
@@ -111,9 +122,47 @@ export function OrbitCardStack({
   const cards = items.length ? items : defaultItems;
   const restingIndex = inRange(defaultActiveIndex, cards.length);
   const [activeIndex, setActiveIndex] = useState(restingIndex);
-  const [open, setOpen] = useState(false);
+  const [hoveredCardIndex, setHoveredCardIndex] = useState(null);
+  const [open, setOpen] = useState(true);
   const stageRef = useRef(null);
+  const isHoveringStageRef = useRef(false);
+  const hasClosedOnEntryRef = useRef(false);
+  const closeTimeoutRef = useRef(null);
   const midpoint = (cards.length - 1) / 2;
+
+  useEffect(() => {
+    const node = stageRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        // When user scrolls and lands on the section, cards are already open by default,
+        // so we smoothly trigger the closing animation after a brief moment to show them collapsing into the stack
+        if (entry && entry.isIntersecting && !hasClosedOnEntryRef.current) {
+          hasClosedOnEntryRef.current = true;
+
+          closeTimeoutRef.current = setTimeout(() => {
+            // Smoothly fold into resting stack unless user is already hovering over cards
+            if (!isHoveringStageRef.current) {
+              setOpen(false);
+              setActiveIndex(restingIndex);
+            }
+          }, 800);
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    observer.observe(node);
+
+    return () => {
+      observer.disconnect();
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+      }
+    };
+  }, [restingIndex]);
 
   const layouts = useMemo(
     () =>
@@ -142,12 +191,30 @@ export function OrbitCardStack({
     setActiveIndex(next);
     onActiveChange?.(cards[next], next);
   };
+
   const close = () => {
     setOpen(false);
     setActiveIndex(restingIndex);
+    setHoveredCardIndex(null);
   };
+
+  const handleStageMouseEnter = () => {
+    isHoveringStageRef.current = true;
+    setOpen(true);
+  };
+
+  const handleStageMouseLeave = () => {
+    isHoveringStageRef.current = false;
+    setHoveredCardIndex(null);
+    close();
+  };
+
   const leaveFocus = (event) => {
-    if (!event.currentTarget.contains(event.relatedTarget)) close();
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+      isHoveringStageRef.current = false;
+      setHoveredCardIndex(null);
+      close();
+    }
   };
 
   return (
@@ -160,7 +227,8 @@ export function OrbitCardStack({
       <div
         ref={stageRef}
         className="relative h-[540px] w-full max-w-[1200px] overflow-visible"
-        onMouseLeave={close}
+        onMouseEnter={handleStageMouseEnter}
+        onMouseLeave={handleStageMouseLeave}
         onBlur={leaveFocus}
         role="list"
         aria-label="Projects card stack"
@@ -168,29 +236,41 @@ export function OrbitCardStack({
         {cards.map((item, index) => {
           const position = open ? layouts[index].open : layouts[index].closed;
           const active = index === activeIndex;
+          const isCardHovered = hoveredCardIndex === index;
           const style = {
             zIndex: active ? 80 : 50 - Math.abs(index - activeIndex),
             transform: `translate(calc(-50% + ${position.x}px), calc(-50% + ${
-              position.y - (open && active ? lift : 0)
+              position.y - (open && active && hoveredCardIndex !== null ? lift : 0)
             }px)) rotate(${position.rotation}deg) scale(${open ? 0.99 : 0.97})`,
             transitionDuration: reduceMotion ? "0ms" : "420ms",
           };
 
           return (
-            <article
+            <Link
               key={`${item.name}-${index}`}
+              href={item.href || "/projects"}
               role="listitem"
-              tabIndex={0}
               aria-current={active ? "true" : undefined}
+              aria-label={`View ${item.name} project`}
               className={cn(
-                "group absolute left-1/2 top-1/2 w-[min(84vw,21rem)] origin-bottom cursor-pointer rounded-[2rem] border border-slate-200/90 bg-white/95 backdrop-blur-xl p-4 sm:p-5 text-slate-900 shadow-xl shadow-slate-900/5 outline-none hover:border-brand-violet/40 hover:shadow-2xl hover:shadow-brand-violet/10 transition-all",
+                "group absolute left-1/2 top-1/2 block w-[min(84vw,21rem)] origin-bottom cursor-pointer rounded-[2rem] border border-slate-200/90 bg-white/95 backdrop-blur-xl p-4 sm:p-5 text-slate-900 shadow-xl shadow-slate-900/5 outline-none hover:border-brand-violet/40 hover:shadow-2xl hover:shadow-brand-violet/10 transition-all",
                 "transition-[transform] ease-[cubic-bezier(.2,.8,.2,1)] focus-visible:ring-2 focus-visible:ring-brand-violet focus-visible:ring-offset-2 focus-visible:ring-offset-white",
                 cardClassName,
               )}
               style={style}
-              onMouseEnter={() => activate(index)}
-              onFocus={() => activate(index)}
-              onClick={() => activate(index)}
+              onMouseEnter={() => {
+                isHoveringStageRef.current = true;
+                setHoveredCardIndex(index);
+                activate(index);
+              }}
+              onMouseLeave={() => {
+                setHoveredCardIndex(null);
+              }}
+              onFocus={() => {
+                isHoveringStageRef.current = true;
+                setHoveredCardIndex(index);
+                activate(index);
+              }}
               onKeyDown={(event) => {
                 if (event.key === "ArrowRight" || event.key === "ArrowDown") {
                   event.preventDefault();
@@ -215,15 +295,13 @@ export function OrbitCardStack({
               }}
             >
               <div className="relative">
-                <Portrait item={item} />
-                <Link
-                  href={item.href || "/projects"}
-                  onClick={(e) => e.stopPropagation()}
-                  aria-label={`Open ${item.name}`}
-                  className="absolute right-3 top-3 grid size-10 place-items-center rounded-full bg-slate-900 hover:bg-brand-violet text-white shadow-md transition-colors group/btn z-10"
+                <Portrait item={item} isHovered={isCardHovered} />
+                <div
+                  aria-hidden="true"
+                  className="absolute right-3 top-3 grid size-10 place-items-center rounded-full bg-slate-900 group-hover:bg-brand-violet text-white shadow-md transition-colors z-10"
                 >
-                  <ArrowUpRight className="size-4 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
-                </Link>
+                  <ArrowUpRight className="size-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </div>
               </div>
               <div className="px-1 pb-1 pt-4 sm:pt-5">
                 <p className="text-[0.72rem] font-mono font-bold uppercase tracking-[0.16em] text-brand-violet">
@@ -242,7 +320,7 @@ export function OrbitCardStack({
                   </span>
                 </div>
               </div>
-            </article>
+            </Link>
           );
         })}
       </div>

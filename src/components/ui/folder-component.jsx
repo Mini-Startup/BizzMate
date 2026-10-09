@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import React, { useState } from "react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
@@ -56,15 +56,15 @@ const themes = {
     flapInsetColor: "0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.15 0",
     cardFill: "#ffffff",
     cardStroke: "#e2e8f0",
-    cardLineFill: "#c084fc",
+    cardLineFill: "#D4D4D4",
     cardInsetColor: "0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0",
   }
 };
 
 const sizeScales = {
-  sm: 0.65,
-  md: 1,
-  lg: 1.35
+  sm: 0.55,
+  md: 0.85,
+  lg: 1.15
 };
 
 const BASE_WIDTH = 321;
@@ -77,12 +77,13 @@ const FolderComponent = ({
   color = "black",
   size = "md",
   className,
+  isHovered: isHoveredProp,
   ...props
 }) => {
   const theme = themes[color] ?? themes.black;
   const scale = sizeScales[size];
-  const [isHovered, setIsHovered] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalHovered, setInternalHovered] = useState(false);
+  const isHovered = Boolean(isHoveredProp) || internalHovered;
 
   return (
     <div
@@ -101,12 +102,8 @@ const FolderComponent = ({
           touchAction: "manipulation",
           WebkitTapHighlightColor: "transparent",
         }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => {
-          setIsHovered(false);
-          setIsOpen(false);
-        }}
-        onClick={() => setIsOpen((o) => !o)}
+        onMouseEnter={() => setInternalHovered(true)}
+        onMouseLeave={() => setInternalHovered(false)}
       >
         <div
           className="absolute top-1/2 left-1/2"
@@ -133,15 +130,15 @@ const FolderComponent = ({
             <motion.div
               className="absolute"
               animate={{
-                y: isOpen ? -160 : isHovered ? -30 : -10,
-                x: isOpen ? 70 : 40,
-                rotate: isOpen ? 18 : isHovered ? 14 : 10,
+                y: isHovered ? -160 : -10,
+                x: isHovered ? 70 : 40,
+                rotate: isHovered ? 18 : 10,
               }}
               transition={{
                 type: "spring",
                 stiffness: 120,
                 damping: 13,
-                delay: isOpen ? 0.1 : isHovered ? 0.12 : 0,
+                delay: isHovered ? 0.1 : 0,
               }}
             >
               <Card id={1} theme={theme} />
@@ -149,15 +146,15 @@ const FolderComponent = ({
             <motion.div
               className="absolute"
               animate={{
-                y: isOpen ? -180 : isHovered ? -35 : -20,
-                x: isOpen ? 0 : 3,
-                rotate: isOpen ? -3 : isHovered ? -1 : 2,
+                y: isHovered ? -180 : -20,
+                x: isHovered ? 0 : 3,
+                rotate: isHovered ? -3 : 2,
               }}
               transition={{
                 type: "spring",
                 stiffness: 120,
                 damping: 13,
-                delay: isOpen ? 0.05 : isHovered ? 0.06 : 0,
+                delay: isHovered ? 0.05 : 0,
               }}
             >
               <Card id={2} theme={theme} />
@@ -165,15 +162,15 @@ const FolderComponent = ({
             <motion.div
               className="absolute"
               animate={{
-                y: isOpen ? -170 : isHovered ? -44 : -22,
-                x: isOpen ? -65 : -40,
-                rotate: isOpen ? -14 : isHovered ? -9 : -5,
+                y: isHovered ? -170 : -22,
+                x: isHovered ? -65 : -40,
+                rotate: isHovered ? -14 : -5,
               }}
               transition={{
                 type: "spring",
                 stiffness: 120,
                 damping: 13,
-                delay: isOpen ? 0 : 0,
+                delay: 0,
               }}
             >
               <Card id={3} theme={theme} />
@@ -188,7 +185,7 @@ const FolderComponent = ({
               width: 321,
               height: 241,
             }}
-            animate={{ rotateX: isOpen ? -55 : isHovered ? -45 : -15 }}
+            animate={{ rotateX: isHovered ? -55 : -15 }}
             transition={{ type: "spring", stiffness: 120, damping: 14 }}
           >
             <div
