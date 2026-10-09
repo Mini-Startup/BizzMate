@@ -41,13 +41,29 @@ const featuredProjects = [
 
 const CUBIC_EASE = [0.16, 1, 0.3, 1];
 
+const SECTION_IDS = ["hero", "services", "why-us", "projects", "founders", "faqs"];
+
+const NAV_ITEMS = [
+  { id: "hero", label: "Home", href: "/#hero" },
+  { id: "services", label: "Services", href: "/#services" },
+  { id: "why-us", label: "Why Us", href: "/#why-us" },
+  {
+    id: "projects",
+    label: "Projects",
+    href: "/#projects",
+    hasDropdown: true,
+  },
+  { id: "founders", label: "Founders", href: "/#founders" },
+  { id: "faqs", label: "FAQs", href: "/#faqs" },
+];
+
 export function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [localActiveSection, setLocalActiveSection] = useState(() => {
     if (typeof window !== "undefined" && window.location.hash) {
       const h = window.location.hash.replace("#", "");
-      if (["hero", "services", "why-us", "projects", "founders", "faqs"].includes(h)) {
+      if (SECTION_IDS.includes(h)) {
         return h;
       }
     }
@@ -56,9 +72,13 @@ export function Navbar() {
 
   const activeSection = pathname.startsWith("/projects") ? "projects" : localActiveSection;
 
-  const setActiveSection = (id) => {
-    setLocalActiveSection(id);
-  };
+  const activeSectionRef = useRef(activeSection);
+  activeSectionRef.current = activeSection;
+
+  const scrolledRef = useRef(false);
+  const isClickScrollingRef = useRef(false);
+  const scrollLockTimeoutRef = useRef(null);
+  const dropdownTimeoutRef = useRef(null);
 
   const [projectsDropdownOpen, setProjectsDropdownOpen] = useState(false);
   const [offsets, setOffsets] = useState({ navX: 0, ctaX: 0 });
@@ -66,13 +86,7 @@ export function Navbar() {
   const navRef = useRef(null);
   const linksRef = useRef(null);
   const ctaRef = useRef(null);
-  const dropdownTimeoutRef = useRef(null);
-
-  // Smooth click scroll lock & scroll-spy dwell timers
-  const isClickScrollingRef = useRef(false);
-  const scrollLockTimeoutRef = useRef(null);
-  const dwellTimerRef = useRef(null);
-  const pendingSectionRef = useRef(null);
+  const miniLogoRef = useRef(null);
 
   // Measure and calculate exact transform translation distances from outer edges to dock
   useEffect(() => {
@@ -96,14 +110,15 @@ export function Navbar() {
         initialCtaLeft = navRect.right - (ctaRef.current?.offsetWidth || 134);
       }
 
-      const miniLogoW = 94;
+      // Dynamically measure mini logo width (adapts to text size like text-lg)
+      const miniLogoW = miniLogoRef.current?.offsetWidth || 124;
       const navW = linksRef.current?.offsetWidth || 530;
       const ctaW = ctaRef.current?.offsetWidth || 134;
 
       // Symmetrical edge padding on both ends (left of logo == right of CTA)
       const dockEdgePad = 16;
-      const gapLogoToNav = 10;
-      const gapNavToCta = 10;
+      const gapLogoToNav = 12;
+      const gapNavToCta = 12;
 
       // Dynamic capsule width with exact symmetrical outer padding
       const calculatedDockWidth = Math.round(
@@ -126,6 +141,9 @@ export function Navbar() {
 
     updateOffsets();
     window.addEventListener("resize", updateOffsets);
+    if (typeof document !== "undefined" && document.fonts) {
+      document.fonts.ready.then(updateOffsets);
+    }
     return () => window.removeEventListener("resize", updateOffsets);
   }, []);
 
@@ -134,7 +152,8 @@ export function Navbar() {
     if (pathname !== "/") return;
     const handleHashChange = () => {
       const hash = window.location.hash.replace("#", "");
-      if (hash && ["hero", "services", "why-us", "projects", "founders", "faqs"].includes(hash)) {
+      if (hash && SECTION_IDS.includes(hash)) {
+        activeSectionRef.current = hash;
         setLocalActiveSection(hash);
       }
     };
@@ -142,108 +161,89 @@ export function Navbar() {
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, [pathname]);
 
-  // Hysteresis scroll listener: seamless transition down and full reverse animation up
-  useEffect(() => {
-    const handleScroll = () => {
-      // While programmatic scroll to hero is active, do not force scrolled state
-      if (isClickScrollingRef.current && activeSection === "hero") return;
-
-      const y = window.scrollY;
-      if (y > 35) {
-        setScrolled(true);
-      } else if (y < 20) {
-        setScrolled(false);
-      }
-    };
-    handleScroll();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [activeSection]);
-
-  // Scroll spy on homepage with robust getBoundingClientRect and URL hash synchronization
+  // Unified high-performance scroll listener (dock hysteresis + robust reading-line scroll spy)
   useEffect(() => {
     if (pathname !== "/") return;
 
-    const sectionIds = ["services", "why-us", "projects", "founders", "faqs"];
-    const handleScrollSpy = () => {
-      // If user clicked a nav item and page is programmatically smooth scrolling, ignore scroll spy
-      if (isClickScrollingRef.current) return;
+    let rafId = null;
 
+    const updateScrollState = () => {
       const y = window.scrollY;
-      if (y < 220) {
-        if (activeSection !== "hero") {
-          setActiveSection("hero");
-          if (window.location.hash && window.location.hash !== "#hero") {
-            window.history.replaceState(null, "", "#hero");
-          }
+
+      // 1. Header expansion vs compact dock hysteresis
+      if (y > 35) {
+        if (!scrolledRef.current) {
+          scrolledRef.current = true;
+          setScrolled(true);
         }
-        return;
+      } else if (y < 20) {
+        if (scrolledRef.current) {
+          scrolledRef.current = false;
+          setScrolled(false);
+        }
       }
 
-      // Check if user reached bottom of page -> activate last section
+      // 2. If smooth scrolling from nav click, do not override section
+      if (isClickScrollingRef.current) return;
+
+      // 3. Bottom of page check (activate last section)
       const isAtBottom =
-        window.innerHeight + y >= document.documentElement.scrollHeight - 70;
+        window.innerHeight + y >= document.documentElement.scrollHeight - 60;
       if (isAtBottom) {
-        if (activeSection !== "faqs") {
-          setActiveSection("faqs");
+        if (activeSectionRef.current !== "faqs") {
+          activeSectionRef.current = "faqs";
+          setLocalActiveSection("faqs");
           window.history.replaceState(null, "", "#faqs");
         }
         return;
       }
 
-      // Viewport reading line (260px down from viewport top, beneath the header dock)
-      let currentSection = null;
-      for (const id of sectionIds) {
+      // 4. Section spy: find lowest section whose top has reached reading line (140px)
+      let current = "hero";
+      for (let i = SECTION_IDS.length - 1; i >= 0; i--) {
+        const id = SECTION_IDS[i];
         const el = document.getElementById(id);
         if (el) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top <= 260 && rect.bottom > 200) {
-            currentSection = id;
+          const top = el.getBoundingClientRect().top;
+          if (top <= 140) {
+            current = id;
             break;
           }
         }
       }
 
-      if (currentSection && currentSection !== activeSection) {
-        if (pendingSectionRef.current !== currentSection) {
-          pendingSectionRef.current = currentSection;
-          if (dwellTimerRef.current) clearTimeout(dwellTimerRef.current);
-          dwellTimerRef.current = setTimeout(() => {
-            if (!isClickScrollingRef.current) {
-              setActiveSection(currentSection);
-              if (window.location.hash.replace("#", "") !== currentSection) {
-                window.history.replaceState(null, "", `#${currentSection}`);
-              }
-            }
-          }, 90);
+      if (current !== activeSectionRef.current) {
+        activeSectionRef.current = current;
+        setLocalActiveSection(current);
+        if (window.location.hash.replace("#", "") !== current) {
+          window.history.replaceState(null, "", `#${current}`);
         }
-      } else if (currentSection === activeSection) {
-        if (dwellTimerRef.current) clearTimeout(dwellTimerRef.current);
-        pendingSectionRef.current = null;
       }
     };
 
-    window.addEventListener("scroll", handleScrollSpy, { passive: true });
-    handleScrollSpy();
-    return () => {
-      window.removeEventListener("scroll", handleScrollSpy);
-      if (dwellTimerRef.current) clearTimeout(dwellTimerRef.current);
+    const handleScroll = () => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        updateScrollState();
+      });
     };
-  }, [pathname, activeSection]);
 
-  const navItems = [
-    { id: "hero", label: "Home", href: "/#hero" },
-    { id: "services", label: "Services", href: "/#services" },
-    { id: "why-us", label: "Why Us", href: "/#why-us" },
-    {
-      id: "projects",
-      label: "Projects",
-      href: "/#projects",
-      hasDropdown: true,
-    },
-    { id: "founders", label: "Founders", href: "/#founders" },
-    { id: "faqs", label: "FAQs", href: "/#faqs" },
-  ];
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, [pathname]);
+
+  // Clean up any timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (scrollLockTimeoutRef.current) clearTimeout(scrollLockTimeoutRef.current);
+      if (dropdownTimeoutRef.current) clearTimeout(dropdownTimeoutRef.current);
+    };
+  }, []);
 
   const handleMouseEnterProjects = () => {
     if (dropdownTimeoutRef.current) clearTimeout(dropdownTimeoutRef.current);
@@ -263,18 +263,19 @@ export function Navbar() {
       e.preventDefault();
 
       // 1. Immediately activate target item for instant visual feedback
-      setActiveSection(item.id);
+      activeSectionRef.current = item.id;
+      setLocalActiveSection(item.id);
 
-      // 2. Lock scroll spy during programmatic scroll so intermediate tabs do not fumble
+      // 2. Lock scroll spy during smooth scroll so intermediate sections don't fumble
       isClickScrollingRef.current = true;
       if (scrollLockTimeoutRef.current) clearTimeout(scrollLockTimeoutRef.current);
-      if (dwellTimerRef.current) clearTimeout(dwellTimerRef.current);
-      pendingSectionRef.current = null;
 
-      // 3. Immediately trigger navbar expansion if heading to hero (zero delay!)
+      // 3. Immediately trigger navbar expansion if heading to hero
       if (item.id === "hero") {
+        scrolledRef.current = false;
         setScrolled(false);
       } else {
+        scrolledRef.current = true;
         setScrolled(true);
       }
 
@@ -299,19 +300,20 @@ export function Navbar() {
         isClickScrollingRef.current = false;
       }, 750);
     } else {
-      setActiveSection(item.id);
+      activeSectionRef.current = item.id;
+      setLocalActiveSection(item.id);
     }
   };
 
   const handleLogoClick = (e) => {
     if (pathname === "/") {
       e.preventDefault();
-      setActiveSection("hero");
+      activeSectionRef.current = "hero";
+      setLocalActiveSection("hero");
+      scrolledRef.current = false;
       setScrolled(false);
       isClickScrollingRef.current = true;
       if (scrollLockTimeoutRef.current) clearTimeout(scrollLockTimeoutRef.current);
-      if (dwellTimerRef.current) clearTimeout(dwellTimerRef.current);
-      pendingSectionRef.current = null;
       if (typeof window !== "undefined") {
         window.history.replaceState(null, "", "#hero");
       }
@@ -320,7 +322,8 @@ export function Navbar() {
         isClickScrollingRef.current = false;
       }, 750);
     } else {
-      setActiveSection("hero");
+      activeSectionRef.current = "hero";
+      setLocalActiveSection("hero");
     }
   };
 
@@ -350,6 +353,7 @@ export function Navbar() {
 
         {/* DOCK LEADING MINI LOGO: Fades in smoothly at start of dock when scrolled (exactly 16px from left edge) */}
         <motion.div
+          ref={miniLogoRef}
           initial={false}
           animate={{
             opacity: scrolled ? 1 : 0,
@@ -375,7 +379,7 @@ export function Navbar() {
                 priority
               />
             </div>
-            <span className="font-extrabold text-xs tracking-tight text-neutral-900 group-hover:text-brand-violet transition-colors font-sans">
+            <span className="font-extrabold text-lg text-neutral-900 group-hover:text-brand-violet transition-colors font-sans">
               BizzMate
             </span>
           </Link>
@@ -396,7 +400,7 @@ export function Navbar() {
         >
           {/* Nav Items Pill: EXACT same height and buttons padding in both states */}
           <div className="flex items-center gap-1 relative rounded-full p-1 sm:p-1.5 border border-neutral-200/90 bg-[#f5f5f5]/95 shadow-xs">
-            {navItems.map((item) => {
+            {NAV_ITEMS.map((item) => {
               const isActive = activeSection === item.id;
 
               return (
@@ -426,16 +430,14 @@ export function Navbar() {
                     )}
                   </Link>
 
-                  {/* Smooth Gliding Purple Circular / Pill Active Indicator with Elastic Bounce */}
+                  {/* Smooth Gliding Purple Pill Active Indicator with Zero Bounce */}
                   {isActive && (
                     <motion.div
                       layoutId="navbar-active-indicator"
                       className="absolute inset-0 rounded-full bg-brand-violet shadow-sm"
                       transition={{
-                        type: "spring",
-                        stiffness: 350,
-                        damping: 22,
-                        mass: 0.85,
+                        duration: 0.22,
+                        ease: CUBIC_EASE,
                       }}
                     />
                   )}
