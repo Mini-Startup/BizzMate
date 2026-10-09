@@ -42,13 +42,13 @@ function GlassCapsule({ color, power = 2.8, intensity = 0.7 }) {
     []
   );
 
-  useFrame(() => {
+  useEffect(() => {
     if (materialRef.current) {
       materialRef.current.uniforms.color.value.set(color);
       materialRef.current.uniforms.power.value = power;
       materialRef.current.uniforms.intensity.value = intensity;
     }
-  });
+  }, [color, power, intensity]);
 
   return (
     <mesh>
@@ -580,10 +580,18 @@ export function RobotCanvas({
   pantallaColor = "#a84bff",
   scale = 1.2,
 }) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
+  const [inView, setInView] = useState(true);
 
+  // Pause WebGL rendering loop when Hero section is out of viewport to eliminate website lag
   useEffect(() => {
-    setMounted(true);
+    const handleScroll = () => {
+      const visible = window.scrollY < 900;
+      setInView((prev) => (prev !== visible ? visible : prev));
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   if (!mounted) {
@@ -601,6 +609,8 @@ export function RobotCanvas({
         aria-hidden="true"
         role="presentation"
         tabIndex={-1}
+        frameloop={inView ? "always" : "never"}
+        dpr={[1, 1.5]}
         camera={{ position: [0, -0.38, 4.3], fov: 42 }}
         gl={{ alpha: true, powerPreference: "high-performance" }}
       >
@@ -621,7 +631,7 @@ export function RobotCanvas({
             position={[0, -0.85, 0]}
             opacity={0.35}
             scale={8}
-            resolution={512}
+            resolution={256}
             blur={1.8}
             far={2.5}
             color="#0f172a"

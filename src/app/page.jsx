@@ -1,11 +1,10 @@
 import { LoadingOrbScreen } from "@/components/common/LoadingOrbScreen";
 import { Navbar } from "@/components/common/Navbar";
 import { HeroSection } from "@/components/home/HeroSection";
-import { ProblemSection } from "@/components/home/ProblemSection";
 import { ServicesSection } from "@/components/home/ServicesSection";
 import { WhyChooseUsSection } from "@/components/home/WhyChooseUsSection";
-import { FoundersSection } from "@/components/home/FoundersSection";
 import { ProjectsShowcase } from "@/components/home/ProjectsShowcase";
+import { FoundersSection } from "@/components/home/FoundersSection";
 import { FaqSection } from "@/components/home/FaqSection";
 import { CtaSection } from "@/components/home/CtaSection";
 import { MotionFooter } from "@/components/common/MotionFooter";
@@ -21,11 +20,10 @@ export default function HomePage() {
       <LoadingOrbScreen />
       <main className="relative z-10 w-full flex flex-col bg-white rounded-b-[40px] shadow-2xl">
         <HeroSection />
-        <ProblemSection />
         <ServicesSection />
         <WhyChooseUsSection />
-        <FoundersSection />
         <ProjectsShowcase />
+        <FoundersSection />
         <FaqSection />
         <CtaSection />
       </main>

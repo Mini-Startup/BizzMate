@@ -1,4 +1,3 @@
-import { Navbar } from "@/components/common/Navbar";
 import { MotionFooter } from "@/components/common/MotionFooter";
 import { ProjectsDirectory } from "@/components/projects/ProjectsDirectory";
 
@@ -10,7 +9,6 @@ export const metadata = {
 export default function ProjectsPage() {
   return (
     <>
-      <Navbar />
       <main className="relative z-10 w-full min-h-screen pt-36 pb-24 px-6 bg-white rounded-b-[40px] shadow-2xl overflow-hidden">
         {/* Subtle Ambient Glow */}
         <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-[#ede9fe] via-[#e0f2fe] to-white opacity-80 blur-[130px] pointer-events-none rounded-full" />

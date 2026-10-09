@@ -26,11 +26,10 @@ export function HeroSection() {
     <section id="hero" className="relative w-full bg-white pt-8">
       {/* Ambient Top Glow using Tailwind v4 native scales */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-300 h-90 bg-linear-to-b from-brand-lavender/80 via-brand-ice/40 to-transparent blur-3xl pointer-events-none -z-10" />
-
       {/* Main Full-Width Hero Stage (Edge to Edge, No outer margins, no rounded corners on screen edge) */}
-      <div className="w-full relative px-3 sm:px-6 md:px-8 lg:px-10 flex flex-col min-h-220 lg:min-h-235">
+      <div className="w-full relative px-4 sm:px-8 md:px-10 lg:px-12 flex flex-col min-h-220 lg:min-h-235">
         {/* 1. SPLIT DISPLAY HEADLINE (Bespoke SOFTWARE / Autonomous AI AGENT) */}
-        <div className="relative z-10 w-full my-12 px-1 sm:px-3">
+        <div className="relative z-10 w-full my-12 px-0">
           <div className="flex flex-col md:flex-row items-start justify-between w-full gap-4 md:gap-0">
             {/* Left Headline with BizzMate Gradient */}
             <div className="flex flex-col text-left max-w-full md:max-w-[42%]">

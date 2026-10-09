@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { projects } from "@/data/projects";
-import { Navbar } from "@/components/common/Navbar";
 import { MotionFooter } from "@/components/common/MotionFooter";
 import { ProjectTimelineSection } from "@/components/projects/ProjectTimelineSection";
 import { RailToc } from "@/components/ui/rail-toc";
@@ -57,22 +56,40 @@ export default async function ProjectDetailPage({ params }) {
 
   return (
     <>
-      <Navbar />
       <main className="relative z-10 w-full min-h-screen pt-32 pb-24 bg-white rounded-b-[40px] shadow-2xl">
         {/* Subtle Ambient Glow */}
         <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-[#ede9fe] via-[#e0f2fe] to-white opacity-80 blur-[130px] pointer-events-none rounded-full" />
 
         <div className="max-w-7xl mx-auto px-6 relative z-10">
-          {/* Back Navigation Button */}
-          <div className="mb-8 pt-4">
-            <Link
-              href="/projects"
-              className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-[#a84bff] transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back to All Projects</span>
-            </Link>
-          </div>
+          {/* Breadcrumbs: Home > Projects > [Project Title] */}
+          <nav aria-label="Breadcrumb" className="mb-8 pt-4">
+            <ol className="flex items-center gap-2 text-xs font-semibold text-slate-500 flex-wrap">
+              <li>
+                <Link
+                  href="/"
+                  className="hover:text-brand-violet transition-colors text-slate-600 hover:text-slate-900 font-medium"
+                >
+                  Home
+                </Link>
+              </li>
+              <li className="text-slate-300" aria-hidden="true">/</li>
+              <li>
+                <Link
+                  href="/projects"
+                  className="hover:text-brand-violet transition-colors text-slate-600 hover:text-slate-900 font-medium"
+                >
+                  Projects
+                </Link>
+              </li>
+              <li className="text-slate-300" aria-hidden="true">/</li>
+              <li
+                className="text-brand-violet truncate max-w-xs sm:max-w-md font-bold"
+                aria-current="page"
+              >
+                {project.title}
+              </li>
+            </ol>
+          </nav>
 
           {/* Main 2-Column Layout: Left Sticky Rail TOC | Right Case Study Content */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">

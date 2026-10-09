@@ -101,7 +101,7 @@ export function MotionFooter() {
         {/* Giant Solid Watermark Typography (Zero double-outline artifacts) */}
         <div
           ref={giantTextRef}
-          className="absolute -bottom-[4vh] left-1/2 -translate-x-1/2 whitespace-nowrap z-0 pointer-events-none select-none font-black tracking-[-0.05em] uppercase text-[24vw] leading-[0.72] text-transparent bg-gradient-to-b from-slate-900/10 via-slate-900/3 to-transparent bg-clip-text"
+          className="absolute -bottom-[4vh] left-1/2  whitespace-nowrap z-0 pointer-events-none select-none font-black uppercase text-[20vw] mx-auto leading-[0.94] text-transparent bg-gradient-to-b from-slate-900/10 via-slate-900/3 to-transparent bg-clip-text"
           style={{ fontFamily: "var(--font-jakarta), var(--font-outfit), sans-serif" }}
         >
           BIZZMATE
@@ -116,14 +116,14 @@ export function MotionFooter() {
         </div>
 
         {/* 2. Main Center Content */}
-        <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 mt-24 w-full max-w-5xl mx-auto text-center">
+        <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 mt-24 w-full mx-auto text-center">
           <h2
             ref={headingRef}
             className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-slate-900 tracking-tight mb-8 leading-[1.05]"
             style={{ fontFamily: "var(--font-jakarta), var(--font-outfit), sans-serif" }}
           >
-            Ready to build your <br className="hidden sm:inline" />
-            <span className="text-brand-gradient">next breakthrough?</span>
+            Lets Build 
+            <span className="text-brand-gradient"> Together</span>
           </h2>
 
           {/* Interactive Magnetic Buttons */}
