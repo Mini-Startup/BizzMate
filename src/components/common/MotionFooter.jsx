@@ -166,12 +166,12 @@ export function MotionFooter() {
               >
                 Why Choose Us
               </Link>
-              <Link
+              {/* <Link
                 href="/#founders"
                 className="px-5 py-2.5 rounded-full bg-white/70 border border-slate-200 text-slate-600 text-xs md:text-sm font-semibold hover:text-slate-900 hover:border-[#a84bff]/40 hover:bg-white transition-all shadow-xs"
               >
                 Founders
-              </Link>
+              </Link> */}
               <Link
                 href="/#faqs"
                 className="px-5 py-2.5 rounded-full bg-white/70 border border-slate-200 text-slate-600 text-xs md:text-sm font-semibold hover:text-slate-900 hover:border-[#a84bff]/40 hover:bg-white transition-all shadow-xs"

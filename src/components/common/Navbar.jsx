@@ -41,7 +41,7 @@ const featuredProjects = [
 
 const CUBIC_EASE = [0.16, 1, 0.3, 1];
 
-const SECTION_IDS = ["hero", "services", "why-us", "projects", "founders", "faqs"];
+const SECTION_IDS = ["hero", "services", "why-us", "projects", "faqs"];
 
 const NAV_ITEMS = [
   { id: "hero", label: "Home", href: "/" },
@@ -53,7 +53,7 @@ const NAV_ITEMS = [
     href: "/#projects",
     hasDropdown: true,
   },
-  { id: "founders", label: "Founders", href: "/#founders" },
+  // { id: "founders", label: "Founders", href: "/#founders" },
   { id: "faqs", label: "FAQs", href: "/#faqs" },
 ];
 
