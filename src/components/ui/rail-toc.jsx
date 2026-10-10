@@ -248,23 +248,25 @@ const RailToc = ({
       className={cn("w-max text-sm", railColor, className)}
       {...props}
     >
-      <p
-        data-slot="rail-toc-title"
-        className="mb-3 flex items-center gap-2 font-medium text-foreground/70"
-      >
-        <svg
-          viewBox="0 0 16 16"
-          className="-ml-0.5 h-3.5 w-3.5"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          aria-hidden
+      {title ? (
+        <p
+          data-slot="rail-toc-title"
+          className="mb-4 flex items-center gap-2 text-xs font-mono uppercase tracking-wider font-bold text-slate-500"
         >
-          <path d="M2 4h12M2 8h8M2 12h10" />
-        </svg>
-        {title}
-      </p>
+          <svg
+            viewBox="0 0 16 16"
+            className="-ml-0.5 h-3.5 w-3.5 text-[#a84bff]"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            aria-hidden
+          >
+            <path d="M2 4h12M2 8h8M2 12h10" />
+          </svg>
+          {title}
+        </p>
+      ) : null}
 
       <ul ref={listRef} data-slot="rail-toc-list" className="relative">
         {geometry && (

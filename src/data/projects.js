@@ -1,17 +1,17 @@
 export const projects = [
   {
     slug: "nexus-agentic-ops",
-    title: "Nexus Core — Enterprise AI Workflow Automation",
+    title: "Nexus Core — Enterprise AI Workflow Automation Suite",
     client: "Nexus Logistics Group",
-    category: "AI Automations",
-    serviceId: "ai-automations",
-    tagline: "Replacing 45 hours of manual invoice verification with autonomous multi-agent pipelines.",
-    summary: "A production multi-agent system that ingests global shipping manifests, cross-references customs ledgers, and flags discrepancy alerts in real time.",
+    category: "AI Workflows",
+    serviceId: "ai-workflows",
+    tagline: "Autonomous dispatch, invoice parsing, and discrepancy resolution reducing 40+ manual operator hours weekly.",
+    summary: "An end-to-end multi-agent orchestration architecture parsing 14,000+ unstructured customs and freight documents weekly with zero hallucination guarantee.",
     featured: true,
-    thumbnail: "/Full Logo Horizontal.png",
+    thumbnail: "/projects/nexus-agentic-ops.jpg",
     statBadge: "88% Processing Speedup",
     year: "2025",
-    tags: ["Python", "FastAPI", "LangChain", "Qdrant", "PostgreSQL"],
+    tags: ["Next.js 15", "FastAPI", "Python", "LangGraph", "Docker", "PostgreSQL"],
     overview: "Nexus Logistics was losing dozens of hours every week manually reconciling cross-border shipping documents. BizzMate architected a fault-tolerant multi-agent intelligence pipeline with continuous audit trails and instant slack notifications.",
     challenge: "Handling unstructured PDFs, varying international freight formats, and multi-currency exchange reconciliations without introducing hallucinated numbers or false flags.",
     solution: "We deployed a dual-LLM consensus architecture: Agent A extracts schema-enforced tabular data while Agent B verifies arithmetic invariants against bank webhooks before committing entries to the ERP.",
@@ -22,32 +22,53 @@ export const projects = [
     ],
     timeline: [
       {
-        id: "stage-1",
+        id: "2025-january",
         year: "2025",
         month: "January",
         title: "Architecture & Schema Defense",
         content: "Audited 1,200 sample freight manifests and formulated schema constraints with zero-tolerance mathematical validation rules."
       },
       {
-        id: "stage-2",
+        id: "2025-february",
         year: "2025",
         month: "February",
+        title: "Prototype Sprint & Operator Validation",
+        content: "Validated document OCR parsing and automated anomaly detection with front-line logistics dispatchers."
+      },
+      {
+        id: "2025-march",
+        year: "2025",
+        month: "March",
         title: "Agentic Ingestion Pipeline",
         content: "Implemented parallelized OCR workers and deployed localized embedding retrieval with Qdrant vector store."
       },
       {
-        id: "stage-3",
-        year: "2025",
-        month: "March",
-        title: "ERP Integration & Live Staging",
-        content: "Connected the automated pipelines directly to SAP webhooks with automated fallback to human review queues."
-      },
-      {
-        id: "stage-4",
+        id: "2025-april",
         year: "2025",
         month: "April",
+        title: "Consensus Layer & Security Audit",
+        content: "Deployed dual-model invariant verification cross-checking foreign tax rates and bank webhooks."
+      },
+      {
+        id: "2025-may",
+        year: "2025",
+        month: "May",
+        title: "ERP Integration & Live Staging",
+        content: "Connected automated pipelines directly to SAP webhooks with automated fallback to human review queues."
+      },
+      {
+        id: "2025-june",
+        year: "2025",
+        month: "June",
+        title: "Production Stress Testing",
+        content: "Simulated 100k document loads across distributed worker queues ensuring latency remained strictly under 400ms."
+      },
+      {
+        id: "2025-july",
+        year: "2025",
+        month: "July",
         title: "Enterprise Global Rollout",
-        content: "Scaled out workers across European and Asian shipping lanes with continuous latency monitoring under 400ms."
+        content: "Scaled out workers across European and Asian shipping lanes with continuous zero-downtime monitoring."
       }
     ],
     testimonial: {
@@ -58,15 +79,15 @@ export const projects = [
   },
   {
     slug: "omni-whatsapp-concierge",
-    title: "Aura Dental — Autonomous WhatsApp Booking & Care Engine",
+    title: "Aura Health — Automated Patient Concierge & Booking Engine",
     client: "Aura Healthcare Network",
     category: "WhatsApp Automations",
     serviceId: "whatsapp-automations",
-    tagline: "Automating 2,400 monthly patient bookings with real-time calendar and EHR synchronization.",
-    summary: "Official WhatsApp Cloud API conversational assistant that books appointments, issues automated prep instructions, and collects post-op feedback.",
+    tagline: "HIPAA-conscious appointment scheduler processing 2,400+ bookings monthly with zero operator intervention.",
+    summary: "Custom WhatsApp Cloud API solution integrated with Google Calendar and clinic practice software, reducing patient no-shows by 42%.",
     featured: true,
-    thumbnail: "/Full Logo Horizontal.png",
-    statBadge: "3.2x Booking Conversion",
+    thumbnail: "/projects/omni-whatsapp-concierge.jpg",
+    statBadge: "42% No-Show Reduction",
     year: "2025",
     tags: ["WhatsApp Cloud API", "Node.js", "Redis", "Supabase", "Calendar API"],
     overview: "Aura Dental clinics suffered from high phone abandonment rates during peak hours. BizzMate built a verified WhatsApp Cloud API integration with instant slot booking, reschedule handling, and localized language support.",
@@ -79,32 +100,53 @@ export const projects = [
     ],
     timeline: [
       {
-        id: "stage-1",
+        id: "2025-may",
         year: "2025",
         month: "May",
         title: "Meta Cloud API Verification",
         content: "Secured Tier-2 WhatsApp Business verification, configured webhooks, and drafted approved medical notification templates."
       },
       {
-        id: "stage-2",
+        id: "2025-june",
         year: "2025",
         month: "June",
         title: "Atomic Booking Engine",
         content: "Developed the Redis reservation lock to prevent race conditions during simultaneous booking attempts."
       },
       {
-        id: "stage-3",
+        id: "2025-july",
         year: "2025",
         month: "July",
         title: "Clinic Pilot & Staff Handoff",
         content: "Piloted at flagship clinic with real-time desk notification dashboards and seamless manual operator intervention."
       },
       {
-        id: "stage-4",
+        id: "2025-august",
         year: "2025",
         month: "August",
+        title: "Automated Follow-Up Workflows",
+        content: "Introduced automated post-treatment care routines and automated Google review collection prompts."
+      },
+      {
+        id: "2025-september",
+        year: "2025",
+        month: "September",
+        title: "Multi-Language Localization",
+        content: "Rolled out multilingual dialogue flows across Spanish, German, and French patient bases."
+      },
+      {
+        id: "2025-october",
+        year: "2025",
+        month: "October",
+        title: "EHR Sync Integration",
+        content: "Integrated bi-directional patient records syncing directly with internal clinic practice software."
+      },
+      {
+        id: "2025-november",
+        year: "2025",
+        month: "November",
         title: "Network-Wide Expansion",
-        content: "Extended to all 8 regional clinics with automated post-treatment care flows and Google review collection prompts."
+        content: "Extended to all 18 regional clinics with unified multi-location staff scheduling and routing."
       }
     ],
     testimonial: {
@@ -122,7 +164,7 @@ export const projects = [
     tagline: "Next-gen web application for quantitative equity insights with sub-50ms data streaming.",
     summary: "A high-performance SaaS dashboard featuring real-time WebSockets, custom charts, collaborative workspaces, and automated daily briefs.",
     featured: true,
-    thumbnail: "/Full Logo Horizontal.png",
+    thumbnail: "/projects/strata-cloud-platform.jpg",
     statBadge: "Sub-50ms Chart Stream",
     year: "2024",
     tags: ["Next.js", "TypeScript", "Tailwind CSS", "WebSockets", "TimescaleDB"],
@@ -136,28 +178,49 @@ export const projects = [
     ],
     timeline: [
       {
-        id: "stage-1",
+        id: "2024-june",
         year: "2024",
-        month: "September",
+        month: "June",
         title: "High-Frequency Data Architecture",
         content: "Built WebSocket pub/sub microservices with Protobuf serialization for maximum throughput."
       },
       {
-        id: "stage-2",
+        id: "2024-july",
         year: "2024",
-        month: "October",
+        month: "July",
         title: "Canvas & Grid Virtualization",
-        content: "Constructed custom charting components that maintain 60 FPS even under heavy load."
+        content: "Constructed custom charting components that maintain 60 FPS even under heavy market fluctuations."
       },
       {
-        id: "stage-3",
+        id: "2024-august",
         year: "2024",
-        month: "November",
-        title: "RBAC & Security Audits",
+        month: "August",
+        title: "Real-Time Risk Calculation",
+        content: "Engineered web-worker portfolio risk engines calculating value-at-risk without blocking UI threads."
+      },
+      {
+        id: "2024-september",
+        year: "2024",
+        month: "September",
+        title: "RBAC & Hardware Token 2FA",
         content: "Implemented strict role hierarchies, hardware token 2FA, and granular workspace permissions."
       },
       {
-        id: "stage-4",
+        id: "2024-october",
+        year: "2024",
+        month: "October",
+        title: "Collaborative Note Sync",
+        content: "Added real-time CRDT multi-user annotation directly on candlestick chart intervals."
+      },
+      {
+        id: "2024-november",
+        year: "2024",
+        month: "November",
+        title: "Low-Latency Edge Deployment",
+        content: "Deployed distributed edge clusters nearest to London, New York, and Tokyo exchanges."
+      },
+      {
+        id: "2024-december",
         year: "2024",
         month: "December",
         title: "Institutional Production Launch",
@@ -179,7 +242,7 @@ export const projects = [
     tagline: "A cinematic interactive landing page generating 38,000 waitlist signups in 72 hours.",
     summary: "Engineered for an AI developer platform launch, featuring 3D interactive hardware simulations, custom scroll triggers, and instant signup flows.",
     featured: true,
-    thumbnail: "/Full Logo Horizontal.png",
+    thumbnail: "/projects/hyperion-launch-platform.jpg",
     statBadge: "38K Signups in 72h",
     year: "2025",
     tags: ["Next.js", "Framer Motion", "GSAP", "Tailwind CSS", "Vercel Edge"],
@@ -193,30 +256,51 @@ export const projects = [
     ],
     timeline: [
       {
-        id: "stage-1",
+        id: "2025-january",
         year: "2025",
         month: "January",
         title: "Narrative & Interactive Prototyping",
         content: "Mapped the visitor journey from curiosity to commitment with interactive Framer motion prototypes."
       },
       {
-        id: "stage-2",
+        id: "2025-february",
         year: "2025",
-        month: "January",
+        month: "February",
         title: "Custom 3D & GSAP Integration",
         content: "Crafted interactive canvas components with responsive fallback shaders for low-power mobile devices."
       },
       {
-        id: "stage-3",
+        id: "2025-march",
         year: "2025",
-        month: "February",
+        month: "March",
+        title: "Interactive Terminal Simulation",
+        content: "Engineered an in-browser live playground allowing visitors to run model queries in real time."
+      },
+      {
+        id: "2025-april",
+        year: "2025",
+        month: "April",
         title: "Stress Testing & Global Edge Caching",
         content: "Simulated 50,000 concurrent page loads via k6 to guarantee zero latency degradation on launch day."
       },
       {
-        id: "stage-4",
+        id: "2025-may",
         year: "2025",
-        month: "February",
+        month: "May",
+        title: "Viral Referral Mechanism",
+        content: "Built unique waitlist leaderboard links multiplying organic sharing across social feeds."
+      },
+      {
+        id: "2025-june",
+        year: "2025",
+        month: "June",
+        title: "International CDN Tuning",
+        content: "Pre-rendered static assets across 300+ edge locations achieving 99.8% cache hit ratios."
+      },
+      {
+        id: "2025-july",
+        year: "2025",
+        month: "July",
         title: "Global Product Hunt & X Launch",
         content: "Achieved #1 Product of the Day with flawless uptime and international press coverage."
       }
@@ -236,7 +320,7 @@ export const projects = [
     tagline: "Custom RAG bot resolving complex developer inquiries directly inside Slack and web portals.",
     summary: "Context-aware AI support agent trained on 4,000+ technical documentation pages, GitHub issues, and product specifications.",
     featured: false,
-    thumbnail: "/Full Logo Horizontal.png",
+    thumbnail: "/projects/synapse-rag-support.jpg",
     statBadge: "84% Deflection Rate",
     year: "2024",
     tags: ["LangChain", "OpenAI", "Pinecone", "Next.js", "Slack Bolt API"],
@@ -250,25 +334,53 @@ export const projects = [
     ],
     timeline: [
       {
-        id: "stage-1",
+        id: "2024-june",
         year: "2024",
-        month: "July",
+        month: "June",
         title: "Documentation Vectorization",
         content: "Parsed Sphinx and Markdown docs into semantic chunks with metadata tagging by product release version."
       },
       {
-        id: "stage-2",
+        id: "2024-july",
         year: "2024",
-        month: "August",
+        month: "July",
         title: "Hybrid Search & Guardrails",
         content: "Created a cross-encoder reranking layer to guarantee that only strictly relevant snippets enter the LLM context window."
       },
       {
-        id: "stage-3",
+        id: "2024-august",
+        year: "2024",
+        month: "August",
+        title: "Anti-Hallucination Testing",
+        content: "Benchmarked 500 edge cases with automated verification against official SDK method signatures."
+      },
+      {
+        id: "2024-september",
         year: "2024",
         month: "September",
-        title: "Slack & Widget Deployment",
-        content: "Launched real-time bot inside customer Slack Connect channels with instant human escalation commands."
+        title: "Slack Connect Integration",
+        content: "Integrated the bot directly into customer shared Slack Connect channels with instant human dispatch."
+      },
+      {
+        id: "2024-october",
+        year: "2024",
+        month: "October",
+        title: "Web Embed Widget",
+        content: "Built a lightweight, unbranded iframe widget for customer documentation pages with instant code snippet copying."
+      },
+      {
+        id: "2024-november",
+        year: "2024",
+        month: "November",
+        title: "Real-Time Feedback Tuning",
+        content: "Implemented positive/negative rating loops that dynamically fine-tune vector embeddings."
+      },
+      {
+        id: "2024-december",
+        year: "2024",
+        month: "December",
+        title: "Full Production Deflection",
+        content: "Achieved 84% automated resolution rate across 12,000 developer questions in month one."
       }
     ],
     testimonial: {
@@ -286,7 +398,7 @@ export const projects = [
     tagline: "An editorial portfolio website blending architectural minimalism with dynamic project exploration.",
     summary: "Built for an international architecture studio, featuring smooth WebGL transitions, high-resolution imagery optimization, and interactive floorplan walkthroughs.",
     featured: false,
-    thumbnail: "/Full Logo Horizontal.png",
+    thumbnail: "/projects/vanguard-digital-flagship.jpg",
     statBadge: "60 FPS Transitions",
     year: "2024",
     tags: ["Next.js", "GSAP", "Tailwind CSS", "Sanity CMS"],
@@ -300,21 +412,49 @@ export const projects = [
     ],
     timeline: [
       {
-        id: "stage-1",
+        id: "2024-june",
         year: "2024",
-        month: "October",
+        month: "June",
         title: "Design System & Typography",
         content: "Established architectural grid proportions, generous whitespace rules, and refined typographic contrast."
       },
       {
-        id: "stage-2",
+        id: "2024-july",
         year: "2024",
-        month: "November",
-        title: "Sanity CMS & Media Engine",
+        month: "July",
+        title: "High-Res AVIF Image Pipeline",
         content: "Engineered automated cloud optimization that delivers optimized resolutions tailored to every device viewport."
       },
       {
-        id: "stage-3",
+        id: "2024-august",
+        year: "2024",
+        month: "August",
+        title: "Interactive Floorplan Viewer",
+        content: "Constructed SVG interactive architectural overlays showing room dimensions and materials."
+      },
+      {
+        id: "2024-september",
+        year: "2024",
+        month: "September",
+        title: "GSAP Kinetic Page Transitions",
+        content: "Tuned fluid route changes ensuring 60 FPS across both desktop and handheld viewports."
+      },
+      {
+        id: "2024-october",
+        year: "2024",
+        month: "October",
+        title: "Headless CMS Editorial Studio",
+        content: "Created custom Sanity Studio workflows allowing architects to publish project monographs in minutes."
+      },
+      {
+        id: "2024-november",
+        year: "2024",
+        month: "November",
+        title: "Global CDN Edge Tuning",
+        content: "Optimized multi-region image delivery with Cloudflare Workers caching 4K portfolios worldwide."
+      },
+      {
+        id: "2024-december",
         year: "2024",
         month: "December",
         title: "Launch & International Awards",

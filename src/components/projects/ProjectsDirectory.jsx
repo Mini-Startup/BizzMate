@@ -1,104 +1,152 @@
 "use client";
 
-import React, { useState } from "react";
-import Link from "next/link";
+import React, { useState, useMemo } from "react";
 import { projects } from "@/data/projects";
-import { ArrowRight, Sparkles } from "lucide-react";
-import { MagneticButton } from "@/components/ui/magnetic-button";
+import { ProjectCard } from "@/components/projects/ProjectCard";
+import { Sparkles, Layers, Search, Filter } from "lucide-react";
 
 const CATEGORIES = [
   "All",
   "AI Automations",
   "WhatsApp Automations",
   "Web Applications",
-  "AI Chatbots",
   "Landing Pages",
+  "AI Chatbots",
   "Websites",
 ];
 
 export function ProjectsDirectory({ initialFilter = "All" }) {
   const [activeCategory, setActiveCategory] = useState(initialFilter);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredProjects =
-    activeCategory === "All"
-      ? projects
-      : projects.filter((p) => p.category === activeCategory);
+  // Compute category counts
+  const categoryCounts = useMemo(() => {
+    const counts = { All: projects.length };
+    CATEGORIES.forEach((cat) => {
+      if (cat !== "All") {
+        counts[cat] = projects.filter((p) => p.category === cat).length;
+      }
+    });
+    return counts;
+  }, []);
+
+  // Filter projects by category and search query
+  const filteredProjects = useMemo(() => {
+    return projects.filter((project) => {
+      const matchesCategory =
+        activeCategory === "All" || project.category === activeCategory;
+      const matchesSearch =
+        searchQuery.trim() === "" ||
+        project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        project.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        project.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        project.tags.some((tag) =>
+          tag.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+
+      return matchesCategory && matchesSearch;
+    });
+  }, [activeCategory, searchQuery]);
 
   return (
     <div className="w-full">
-      {/* Category Filter Pills */}
-      <div className="flex flex-wrap items-center justify-center gap-2 mb-12">
-        {CATEGORIES.map((cat) => {
-          const isActive = activeCategory === cat;
-          return (
+      {/* Search & Filter Bar */}
+      <div className="mb-10 sm:mb-12 flex flex-col md:flex-row items-center justify-between gap-4">
+        {/* Category Pills */}
+        <div
+          role="tablist"
+          aria-label="Filter projects by category"
+          className="flex flex-wrap items-center justify-start gap-2 w-full md:w-auto"
+        >
+          {CATEGORIES.map((cat) => {
+            const isActive = activeCategory === cat;
+            const count = categoryCounts[cat] || 0;
+
+            if (cat !== "All" && count === 0) return null;
+
+            return (
+              <button
+                key={cat}
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setActiveCategory(cat)}
+                className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a84bff] ${
+                  isActive
+                    ? "bg-brand-gradient text-white shadow-md shadow-[#a84bff]/25"
+                    : "bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300 shadow-2xs"
+                }`}
+              >
+                <span>{cat}</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                    isActive
+                      ? "bg-white/20 text-white"
+                      : "bg-slate-100 text-slate-500"
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Quick Search Input */}
+        <div className="relative w-full md:w-72">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search stack or client..."
+            aria-label="Search projects by keyword, technology, or client"
+            className="w-full pl-10 pr-4 py-2 rounded-full bg-white border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#a84bff] focus:ring-2 focus:ring-[#a84bff]/20 shadow-2xs transition-all"
+          />
+          {searchQuery && (
             <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-                isActive
-                  ? "bg-brand-gradient text-white shadow-md shadow-[#a84bff]/20"
-                  : "bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300 shadow-xs"
-              }`}
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-700 cursor-pointer"
+              aria-label="Clear search input"
             >
-              {cat}
+              ✕
             </button>
-          );
-        })}
+          )}
+        </div>
       </div>
 
       {/* Projects Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {filteredProjects.map((proj) => (
-          <div
-            key={proj.slug}
-            className="p-8 md:p-10 rounded-2xl bg-white border border-slate-200 hover:border-[#a84bff]/30 transition-all duration-200 flex flex-col justify-between shadow-xs hover:shadow-xl hover:-translate-y-1 group"
+      {filteredProjects.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          {filteredProjects.map((project, idx) => (
+            <ProjectCard
+              key={project.slug}
+              project={project}
+              priority={idx < 3}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="py-20 text-center rounded-3xl bg-slate-50 border border-slate-200/80 p-8">
+          <Filter className="w-10 h-10 text-slate-400 mx-auto mb-4" />
+          <h3 className="text-lg font-bold text-slate-800 mb-2">
+            No projects found
+          </h3>
+          <p className="text-sm text-slate-500 max-w-sm mx-auto mb-6">
+            We couldn’t find any deployments matching &ldquo;{searchQuery || activeCategory}&rdquo;. Try clearing filters to see all case studies.
+          </p>
+          <button
+            onClick={() => {
+              setActiveCategory("All");
+              setSearchQuery("");
+            }}
+            className="px-5 py-2 rounded-full bg-brand-gradient text-white text-xs font-bold shadow-md shadow-[#a84bff]/20 cursor-pointer hover:opacity-95"
           >
-            <div>
-              <div className="flex items-center justify-between mb-5">
-                <span className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-mono font-semibold text-[#266ac1]">
-                  {proj.category}
-                </span>
-                <span className="px-3 py-1 rounded-full bg-brand-gradient text-white text-xs font-bold shadow-xs">
-                  {proj.statBadge}
-                </span>
-              </div>
-
-              <h2 className="text-2xl font-bold text-slate-900 mb-3 group-hover:text-[#a84bff] transition-colors">
-                {proj.title}
-              </h2>
-
-              <p className="text-sm text-slate-600 leading-relaxed mb-6">
-                {proj.summary}
-              </p>
-
-              <div className="flex flex-wrap gap-2 mb-6">
-                {proj.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-2.5 py-1 rounded-md bg-slate-100 text-[11px] font-mono text-slate-600"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="pt-6 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-500">
-                Client: <span className="text-slate-800 font-semibold">{proj.client}</span>
-              </span>
-
-              <Link
-                href={`/projects/${proj.slug}`}
-                className="inline-flex items-center gap-2 text-xs font-bold text-[#a84bff] hover:text-[#266ac1] transition-colors"
-              >
-                <span>Read Full Case Study</span>
-                <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
-          </div>
-        ))}
-      </div>
+            Reset Filters
+          </button>
+        </div>
+      )}
     </div>
   );
 }
+
+export default ProjectsDirectory;
