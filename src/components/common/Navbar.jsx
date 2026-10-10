@@ -580,7 +580,7 @@ export function Navbar() {
                                   key={proj.slug}
                                   href={`/projects/${proj.slug}`}
                                   onClick={() => {
-                                    setActiveSection("projects");
+                                    setLocalActiveSection("projects");
                                     setProjectsDropdownOpen(false);
                                   }}
                                   className="flex items-center justify-between p-2 rounded-xl text-neutral-800 hover:text-brand-violet hover:bg-brand-lavender/60 transition-all group"

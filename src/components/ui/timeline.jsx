@@ -20,11 +20,7 @@ if (typeof window !== "undefined") {
 const useIsomorphicLayoutEffect =
   typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
-/* Inline stand-in for @gsap/react's useGSAP. Mirrors its default
-   `revertOnUpdate: false`: one gsap.context lives for the component's
-   lifetime, the callback is re-added when dependencies change, and the
-   context is reverted only on unmount. A callback may return its own
-   cleanup, which runs before the next re-add and on unmount. */
+/* Inline stand-in for @gsap/react's useGSAP */
 function useGSAP(callback, options) {
   const deps = options?.dependencies ?? [];
   const scope = options?.scope;
@@ -194,11 +190,12 @@ export default function Timeline({
     if (!section) return;
 
     const isMobile = window.innerWidth < 600;
-    const slidePercent = isMobile ? -57 : -65;
-    const lineWidth = isMobile ? "65%" : "98%";
+    // Slide ends with the final milestone sitting cleanly at the screen center (matching reference)
+    const slidePercent = isMobile ? -58 : -62;
+    const lineWidth = isMobile ? "70%" : "98%";
     const lineStart = isMobile ? "top 30%" : "top 25%";
-    const slideEnd = isMobile ? "82% 50%" : "92% bottom";
-    const lineEnd = isMobile ? "80% 50%" : "92% bottom";
+    const slideEnd = isMobile ? "84% 50%" : "92% bottom";
+    const lineEnd = isMobile ? "82% 50%" : "90% bottom";
 
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -344,31 +341,32 @@ export default function Timeline({
       return timeline;
     };
 
+    // Calibrated trigger positions: each milestone reveals as it reaches the screen center
     const positions =
       window.innerWidth < 600
         ? [
-            [22, 32],
-            [28, 38],
+            [16, 26],
+            [26, 36],
             [36, 46],
-            [45, 55],
-            [52, 62],
-            [60, 70],
-            [69, 79],
+            [46, 56],
+            [56, 66],
+            [66, 76],
+            [76, 86],
           ]
         : [
-            [6, 26],
-            [16, 36],
-            [26, 46],
-            [35, 55],
-            [45, 65],
-            [55, 75],
-            [65, 85],
+            [4, 18],
+            [16, 30],
+            [28, 42],
+            [40, 54],
+            [52, 66],
+            [64, 78],
+            [76, 90],
           ];
 
     items.forEach((item, index) => {
       const [startPos, endPos] = positions[index] || [
-        Math.round(6 + (index / Math.max(1, items.length - 1)) * 60),
-        Math.round(26 + (index / Math.max(1, items.length - 1)) * 60),
+        Math.round(4 + (index / Math.max(1, items.length - 1)) * 72),
+        Math.round(18 + (index / Math.max(1, items.length - 1)) * 72),
       ];
       createItemTimeline(item, startPos, endPos);
     });
@@ -396,9 +394,10 @@ export default function Timeline({
       <div className="h-screen w-screen sticky top-[0%] pt-[10%] overflow-hidden max-[600px]:top-[5%]">
         <div
           ref={wholeSliderRef}
-          className="mr-[2vw] flex h-[30vw] w-[240vw] items-center gap-[5vw] px-[5vw] max-[600px]:h-[80vh] max-[600px]:w-[800vw] max-[600px]:px-[7vw]"
+          className="mr-[2vw] flex h-[30vw] w-[225vw] items-center gap-[4vw] px-[4vw] max-[600px]:h-[80vh] max-[600px]:w-[800vw] max-[600px]:px-[6vw]"
         >
-          <div className="relative h-full w-[30vw] overflow-hidden rounded-[1vw] max-[600px]:h-[65vw] max-[600px]:w-[85vw] max-[600px]:rounded-[5vw]">
+          {/* Leading preview image */}
+          <div className="relative h-full w-[28vw] overflow-hidden rounded-[1vw] max-[600px]:h-[65vw] max-[600px]:w-[85vw] max-[600px]:rounded-[5vw] shadow-sm border border-slate-200 shrink-0">
             <Image
               src={imageUrl}
               alt={imageAlt}
@@ -410,13 +409,14 @@ export default function Timeline({
           </div>
 
           <div className="relative h-full w-full">
-            <div className="w-full absolute left-0 top-[49%] -translate-y-1/2 flex items-center h-fit">
+            {/* Main horizontal central axis line: 2.5px thickness, centered at 50% */}
+            <div className="w-full absolute left-0 top-1/2 -translate-y-1/2 flex items-center h-[2.5px] pointer-events-none z-10">
               <div
                 className="h-[.8vw] max-[600px]:h-[2vw] max-[600px]:w-[2vw] w-[.8vw] rounded-full shrink-0"
                 style={activeStyle}
               ></div>
               <div
-                className="h-px w-[0%] rounded-full journey-line"
+                className="h-[2.5px] w-[0%] rounded-full journey-line"
                 style={activeStyle}
               ></div>
               <div
@@ -425,26 +425,31 @@ export default function Timeline({
               ></div>
             </div>
 
+            {/* Top row: Section title & top milestones */}
             <div className="flex h-1/2 w-full items-center justify-start gap-[.5vw]">
-              <div className="h-full w-[20%] pt-[2vw] max-[600px]:h-fit max-[600px]:pt-[5vw]">
-                <h2 className="w-[65%] text-[3vw] leading-[0.95] max-[600px]:text-[8.5vw] font-bold">
+              <div className="h-full w-[22vw] pt-[2vw] max-[600px]:h-fit max-[600px]:pt-[5vw] shrink-0">
+                <h2 className="w-[80%] text-[3vw] leading-[0.95] max-[600px]:text-[8.5vw] font-bold">
                   {title}
                 </h2>
               </div>
 
-              <div className="w-full flex h-full gap-x-[15vw] max-[600px]:gap-x-[40vw]">
+              {/* Top row items: 18vw gap between 26vw cards, pitch = 44vw */}
+              <div className="w-full flex h-full gap-x-[18vw] max-[600px]:gap-x-[40vw]">
                 {activeTopData.map((item) => (
                   <div
                     key={`top-${item.id}`}
-                    className="relative h-full w-[30vw] px-[3vw] max-[600px]:flex max-[600px]:w-[70vw] max-[600px]:flex-col max-[600px]:px-[7vw]"
+                    className="relative h-full w-[26vw] px-[2.5vw] max-[600px]:flex max-[600px]:w-[70vw] max-[600px]:flex-col max-[600px]:px-[6vw] shrink-0"
                   >
-                    <div className="w-full absolute left-0 bottom-0 top-0 h-full">
+                    {/* Stem & dot: Dot centered directly on the 2.5px vertical line */}
+                    <div className="absolute left-0 bottom-0 top-0 w-[2.5px] -translate-x-1/2 pointer-events-none flex flex-col items-center">
+                      <div className="relative flex items-center justify-center">
+                        <div
+                          className={`size-[1vw] min-w-[12px] min-h-[12px] max-[600px]:size-[2.5vw] rounded-full aspect-square shrink-0 jd-${item.id}`}
+                          style={activeStyle}
+                        ></div>
+                      </div>
                       <div
-                        className={`size-[1vw] max-[600px]:size-[2.5vw] -translate-x-1/2 relative aspect-square rounded-full jd-${item.id}`}
-                        style={activeStyle}
-                      ></div>
-                      <div
-                        className={`h-[94%] w-px origin-bottom rounded-full jl-${item.id}`}
+                        className={`w-full origin-bottom rounded-full flex-1 jl-${item.id}`}
                         style={activeStyle}
                       ></div>
                     </div>
@@ -467,8 +472,9 @@ export default function Timeline({
               </div>
             </div>
 
+            {/* Bottom row: Period label & bottom milestones */}
             <div className="h-1/2 flex items-center justify-start w-full">
-              <div className="w-[34%] pt-[2vw] max-[600px]:pt-[5vw] max-[600px]:w-[30%] h-full">
+              <div className="w-[22vw] pt-[2vw] max-[600px]:pt-[5vw] h-full shrink-0">
                 <p
                   className="text-[1.65vw] leading-none max-[600px]:text-[4.2vw] font-medium"
                   style={mutedTextStyle}
@@ -477,21 +483,25 @@ export default function Timeline({
                 </p>
               </div>
 
-              <div className="w-full flex h-full gap-x-[20vw] ml-[7vw] max-[600px]:gap-x-[40vw] max-[600px]:ml-[7vw]">
+              {/* Bottom row items: offset by ml-[22vw] so first bottom item is at 44vw, exactly midway between Top 0 (22vw) and Top 1 (66vw) */}
+              <div className="w-full flex h-full gap-x-[18vw] ml-[22vw] max-[600px]:gap-x-[40vw] max-[600px]:ml-[22vw]">
                 {activeBottomData.map((item) => (
                   <div
                     key={`bottom-${item.id}`}
-                    className="relative h-full w-[25vw] px-[3vw] max-[600px]:w-[70vw] max-[600px]:px-[7vw]"
+                    className="relative h-full w-[26vw] px-[2.5vw] max-[600px]:w-[70vw] max-[600px]:px-[6vw] shrink-0"
                   >
-                    <div className="w-full absolute left-0 bottom-[-1%] h-full">
+                    {/* Stem & dot: Dot centered directly on the 2.5px vertical line */}
+                    <div className="absolute left-0 top-0 bottom-0 w-[2.5px] -translate-x-1/2 pointer-events-none flex flex-col items-center">
                       <div
-                        className={`h-[94%] origin-top w-px rounded-full max-[600px]:h-full jl-${item.id}`}
+                        className={`w-full origin-top rounded-full flex-1 jl-${item.id}`}
                         style={activeStyle}
                       ></div>
-                      <div
-                        className={`size-[1vw] max-[600px]:size-[2.5vw] -translate-x-1/2 relative w-auto aspect-square rounded-full jd-${item.id}`}
-                        style={activeStyle}
-                      ></div>
+                      <div className="relative flex items-center justify-center">
+                        <div
+                          className={`size-[1vw] min-w-[12px] min-h-[12px] max-[600px]:size-[2.5vw] rounded-full aspect-square shrink-0 jd-${item.id}`}
+                          style={activeStyle}
+                        ></div>
+                      </div>
                     </div>
 
                     <div className="flex h-full w-full flex-col justify-end space-y-[1vw]">
