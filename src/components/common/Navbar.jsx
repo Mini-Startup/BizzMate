@@ -309,12 +309,16 @@ export function Navbar() {
       });
     }
 
+    const capturedScrollMonitorRef = scrollMonitorRafRef;
+    const capturedHashDwellTimeoutRef = hashDwellTimeoutRef;
+    const capturedClickUnlockTimerRef = clickUnlockTimerRef;
+
     return () => {
       cancelAnimationFrame(mountRaf);
       if (rafId) cancelAnimationFrame(rafId);
-      if (scrollMonitorRafRef.current) cancelAnimationFrame(scrollMonitorRafRef.current);
-      if (hashDwellTimeoutRef.current) clearTimeout(hashDwellTimeoutRef.current);
-      if (clickUnlockTimerRef.current) clearTimeout(clickUnlockTimerRef.current);
+      if (capturedScrollMonitorRef.current) cancelAnimationFrame(capturedScrollMonitorRef.current);
+      if (capturedHashDwellTimeoutRef.current) clearTimeout(capturedHashDwellTimeoutRef.current);
+      if (capturedClickUnlockTimerRef.current) clearTimeout(capturedClickUnlockTimerRef.current);
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("scrollend", handleScrollEnd);
       window.removeEventListener("resize", handleResize);

@@ -1,0 +1,373 @@
+""BIZZ MATE WEBSITE — SERVICES SHOWCASE SECTION
+DETAILED IMPLEMENTATION SPECIFICATION FOR THE AI CODING AGENT
+
+PURPOSE
+Build a responsive, interactive Services Showcase section inspired by the supplied reference image, which is titled “Explore Our Case Studies.” The BizzMate version will showcase services, not case studies or projects.
+
+The reference image is a layout and interaction reference only. Do not reproduce its exact copy or content. Adapt the composition to BizzMate’s service offering and to the existing website.
+
+Do not define or change the website’s colors, typography, font families, border styles, shadows, radii, or general design tokens in this specification. Use the existing project’s design system for all styling. This document specifies structure, behavior, dimensions as approximate layout targets, navigation logic, animation, responsiveness, and performance.
+
+REFERENCE IMAGE
+Use the supplied image as the main visual reference:
+- Large selected card on the left.
+- Several smaller service cards arranged horizontally in the upper-right area.
+- Description for the currently selected service beneath the smaller cards.
+- A centered custom navigation/progress component beneath the overall showcase.
+- The selected service changes when the visitor navigates between cards.
+- Cards are arranged as an asymmetrical composition rather than a uniform card grid.
+
+Do not use the reference image as a flattened background. Build the section from real HTML elements and CSS so it can be responsive and interactive.
+
+FIRST: INSPECT THE EXISTING PROJECT
+Before implementation:
+1. Inspect the existing framework, routes, components, CSS conventions, and section immediately before and after the new section.
+2. Find the existing reusable navigation/progress component the user mentioned. It is already built and styled.
+3. Reuse that component rather than redesigning it. Connect the required behavior to it using its existing API if available. If the API is unclear, inspect its implementation and expose only the minimum necessary props or callbacks.
+4. Reuse the project’s existing design tokens and conventions. Do not introduce a new design system.
+5. Check whether an animation library is already installed. Reuse it only if appropriate; otherwise use CSS transitions and lightweight native browser APIs.
+6. Do not rewrite unrelated page sections or install new packages for a simple carousel.
+
+SECTION PURPOSE AND CONTENT
+This is a Services Showcase section for BizzMate. It explains what BizzMate provides and gives the visitor an interactive way to explore services.
+
+Possible service categories, adjusted to the actual services already presented elsewhere on the website:
+- Website Development
+- E-commerce Development
+- Custom Web Applications
+- AI Agents and Chatbots
+- Workflow Automation
+- SEO and Google Visibility
+- Conversion-focused Landing Pages
+- Business Systems and Integrations
+
+Use the actual service inventory from the existing project wherever available. Do not invent services that BizzMate does not offer. The list above is a suggested starting point, not a requirement to include every item.
+
+Each service should have:
+- A concise, clear title.
+- A relevant icon as the primary visual element, since the user expects icons rather than large photos for most cards.
+- Optional short supporting copy on the selected card only if it improves clarity.
+- A fuller service description displayed in the description area beneath the smaller cards when that service is selected.
+- An optional short action link only if the existing site has a meaningful destination for it.
+
+Do not use generic stock photography as the default. Use existing project icons or the icon system already installed. Icons must be semantically appropriate and consistent with the project’s existing icon conventions.
+
+DESKTOP COMPOSITION
+The section should be arranged as a two-row composition with a deliberate asymmetry. The leftmost selected service occupies a larger, vertically dominant card. The remaining services occupy smaller cards on the right.
+
+The composition should resemble a layout split approximately 37% / 63%:
+- Left region: about 37% of the usable content width.
+- Right region: about 63% of the usable content width.
+This is an approximate relationship, not an exact fixed split. Use CSS Grid or an equivalent responsive layout and adjust it to the actual page width.
+
+Suggested overall structure:
+1. Section heading area.
+2. Main showcase grid:
+   - Left: selected/featured service card, spanning the height of both rows.
+   - Right, upper row: three or four smaller service cards in a horizontal sequence.
+   - Right, lower row: description and supporting content for the currently selected service.
+3. Centered navigation/progress component beneath the main showcase.
+
+The section heading should communicate that the visitor is exploring BizzMate’s services. Do not retain “Explore Our Case Studies,” since this is a service showcase. Use the existing site’s content voice and heading conventions.
+
+Do not force the entire section into fixed viewport dimensions. Let the layout respond to content and screen size.
+
+1. FEATURED CARD — LEFT REGION
+- Occupies approximately 37% of the main composition width.
+- Spans both rows of the main desktop grid.
+- Must be noticeably larger than each card on the right.
+- Use a stable card container whose dimensions are determined by the grid.
+- The icon should be a prominent visual anchor, placed toward the right side or in another position that fits the existing site’s visual system.
+- The service title should be easy to scan.
+- If the selected card contains an optional short description, keep it brief.
+- Avoid packing the featured card with the full service description; the dedicated description area on the right handles that.
+- Include a custom left-arrow control in the appropriate corner/position of the featured card. This means “go to the previous service.”
+- The left arrow must not be decorative. It must navigate to the previous item in the service sequence.
+- The featured card should visually indicate which service is currently selected, using the existing design system rather than introducing new styling rules.
+- The featured card should retain its visual role as the active item when the selection changes.
+
+2. SMALL SERVICE CARDS — UPPER RIGHT
+- Place three or four smaller cards in one horizontal row on desktop, depending on the number of services and the available width.
+- Each small card is substantially smaller than the featured card.
+- Keep card widths and gaps consistent with one another.
+- Show a service title and a relevant icon. A small amount of supporting copy may be omitted to avoid crowding.
+- Each card should include a custom right-arrow control or equivalent next-navigation affordance, consistent with the reference’s navigation idea.
+- The right arrow means “go to the next service” in the ordered service sequence. Do not create an independent carousel for each card.
+- Clicking/tapping a small service card should select that service and update the featured card and description.
+- The currently selected service should be represented clearly.
+- Cards should not appear to be separate unrelated service links if their main purpose is to change the active service.
+- If the service inventory contains more cards than fit on the row, handle the overflow through the intended carousel/navigation behavior instead of shrinking every card until titles are unreadable.
+- Do not allow a partially clipped card to imply a clickable next item unless that behavior actually exists.
+
+3. DESCRIPTION AREA — LOWER RIGHT
+- Position it directly below the small service-card row.
+- It must always correspond to the currently selected service.
+- On initial load, show the description for the initial featured service.
+- When the active service changes, update the description, title if repeated there, and any related action link together.
+- Use a concise paragraph rather than a long block of text.
+- A suitable content model is:
+  - Optional small category/eyebrow.
+  - Service title, if it adds useful context.
+  - One concise paragraph explaining what the service does and the value it provides.
+  - Optional “Explore service” or similar link only when a real destination exists.
+- Do not hard-code one description separately from the selected service. Store service data in a single source of truth and render the description based on the active service index or ID.
+- Keep enough space between the upper cards and description so they do not visually collide.
+- When the description changes, use a brief transition that does not cause a noticeable layout jump.
+
+4. NAVIGATION / PROGRESS COMPONENT — BELOW THE SHOWCASE
+The user already has this component implemented and styled. Do not spend time redesigning it.
+
+Your responsibility is to connect it to the Services Showcase.
+
+Expected behavior:
+- It reflects which service is currently active.
+- When the user manually selects a service, update the progress component.
+- When the progress component is used to navigate or change slides, update the active service if its existing design/API supports that interaction.
+- If it contains previous/next controls, connect those controls to the same central navigation state used by the cards.
+- Preserve its existing styles, dimensions, iconography, spacing, and responsive behavior.
+- Do not create a second competing navigation/progress system.
+- Do not duplicate its arrow controls elsewhere unless the reference requires a separate control in the featured card or smaller cards.
+- Inspect the component first. Use its existing callbacks/props. Add only the minimum integration necessary.
+- Keep the component centered relative to the showcase content area, as requested, not pushed to the far left or right by the grid.
+
+SERVICE DATA AND STATE MODEL
+Keep the service inventory in a single array or equivalent data structure. Each service should have a stable ID and fields such as:
+- id
+- title
+- icon identifier or icon component
+- shortDescription (optional)
+- description
+- destination URL (optional, only when a real destination exists)
+
+Maintain one source of truth for the active service. Use an active index or stable ID, depending on the existing code conventions.
+
+All interactive parts must read from this same active selection:
+- Featured card.
+- Small cards.
+- Description area.
+- Active-state styling.
+- Navigation/progress component.
+- Autoplay timer.
+
+Do not maintain separate state variables for the same selection in different components. This avoids mismatched titles, descriptions, card highlighting, and progress indicators.
+
+CAROUSEL / NAVIGATION BEHAVIOR
+The section is an interactive service carousel presented through an asymmetrical grid.
+
+Define the service sequence in a stable, explicit order. Navigation should work consistently from any control.
+
+Previous:
+- Move to the previous service in the sequence.
+- From the first service, wrap to the final service if the carousel uses looping behavior.
+
+Next:
+- Move to the next service in the sequence.
+- From the final service, wrap to the first service if looping behavior is enabled.
+
+Selecting a card:
+- Set that service as active.
+- Update the featured card.
+- Update the description area.
+- Update active card state.
+- Update the existing progress component.
+- Restart the autoplay interval if autoplay is enabled.
+
+Selecting the already active service:
+- Do not restart an unnecessary visual transition or produce a redundant state change.
+- If the product’s existing interaction pattern treats a click on the active card as a timer reset, this is acceptable, but avoid visual flicker.
+
+Navigation arrows:
+- Use the project’s existing icon/button conventions.
+- Provide meaningful accessible labels such as “Previous service” and “Next service.”
+- Make arrow controls real buttons, not decorative icons.
+- Stop propagation when a nested arrow button exists inside a clickable card so that it does not accidentally trigger two different selection actions.
+- Prevent accidental duplicate navigation from event bubbling.
+- Make the controls keyboard accessible.
+
+AUTOPLAY BEHAVIOR
+The service carousel should automatically advance after a short interval, but it must remain comfortable to read and must not interfere with manual control.
+
+Recommended initial behavior:
+- Start autoplay only when the section is in or near the viewport.
+- Use an interval of approximately 5–7 seconds between automatic changes. Treat this as a tuning target, not an absolute requirement.
+- Advance to the next service in the sequence.
+- The next service should become the featured card, and the description and progress indicator should update together.
+- Do not advance during the middle of an active transition.
+- After a manual card selection or previous/next navigation, reset the autoplay timer so the visitor gets a full viewing interval for the newly selected service.
+- If the visitor leaves the section, pause autoplay.
+- When the visitor returns, resume according to the implementation’s normal timer policy without immediately switching the service.
+- Pause autoplay while the visitor is hovering over the carousel on devices that support hover.
+- Pause while focus is inside the interactive carousel, or at minimum ensure keyboard users can interact without the content changing unexpectedly.
+- Pause when the browser tab is hidden using the Page Visibility API, if the existing implementation can do this without unnecessary complexity.
+- Disable autoplay when prefers-reduced-motion is enabled, unless the existing product requirements explicitly say otherwise.
+- If the visitor interacts manually, do not override their action immediately with a timer tick.
+- If the user explicitly pauses the carousel through the existing progress/navigation component, respect that paused state.
+- Clean up all timers and event listeners when the component unmounts.
+
+IMPORTANT AUTOPLAY DETAIL
+Do not use setInterval in a way that causes overlapping transitions or stale active-index values. Prefer a carefully managed timeout that is reset after each selection, or another timer pattern that uses current state safely. The timer must never advance multiple cards at once because of a stale closure or repeated effect.
+
+TRANSITIONS BETWEEN SERVICES
+The user specifically wants the change between services to feel smooth, fast, and connected—not like an entirely new page or section is being loaded.
+
+Use a restrained transition system with these principles:
+- Keep the overall grid/container anchored in place.
+- Do not animate the whole section’s width or height.
+- The featured card should transition to the new service without a full-page fade or large sweeping movement.
+- The selected card’s content can fade out briefly and the incoming content can fade in with a small directional translation.
+- Use opacity and transform for animated content wherever possible.
+- Target approximately 220–360ms for card/content transitions. Tune this against the existing design and actual browser performance.
+- The incoming service should feel like the next item in a coherent sequence, not an unrelated card being swapped abruptly.
+- For next navigation, a very small horizontal movement toward the left may imply forward progression; for previous navigation, reverse the direction. Keep the offset restrained, approximately 8–16px.
+- Do not make the entire featured card travel across the page from one position to another. The card container stays in place; its content and selected-state presentation change within that stable geometry.
+- Small cards should update their content and active state without unnecessary motion across the entire grid.
+- The description area should crossfade or use a brief opacity/transform transition when its content changes.
+- Avoid large blur effects, spring/bounce motion, elastic movement, rotation, zooming, or exaggerated 3D transforms.
+- Do not use layout animation for every grid item when a normal content transition will work.
+- Avoid flashing a blank frame between outgoing and incoming service content.
+- If image/icon content changes, reserve its space to prevent layout shift.
+- Avoid transitions that make text unreadable while the visitor is trying to read it.
+- Do not animate every nested icon, label, and paragraph independently. Animate each card or content group as a unit.
+- If an animation library is already installed and suitable, use it for a clean enter/exit transition. Otherwise implement the effect with CSS classes and a small state/transition mechanism.
+
+SUGGESTED TRANSITION SEQUENCE
+When the active service changes:
+1. Keep the outer grid and card containers fixed in their final positions.
+2. Trigger a short outgoing content transition on the featured card and description area.
+3. Update the active service state from the shared service data.
+4. Render the new title, icon, and description in the same stable content slots.
+5. Apply the corresponding incoming direction based on whether the user moved forward or backward.
+6. Update active card styling and progress state immediately or in sync with the new content.
+7. Finish the transition within the intended short duration.
+8. Restart the autoplay timer only after handling the manual or automatic navigation cleanly.
+
+This is a conceptual sequence. Choose the simplest implementation compatible with the existing framework and avoid unnecessary intermediate React renders.
+
+INITIAL LOAD AND SECTION ENTRY
+This component may appear after another website section. It can use a subtle one-time entrance reveal when the whole section first enters the viewport, if consistent with the existing website’s motion system.
+
+If using an entrance reveal:
+- Reveal the section as a whole or reveal only a few logical groups: featured card, small card row, description, and navigation/progress component.
+- Keep the reveal subtle and quick.
+- Do not combine a heavy entrance animation with a second heavy animation for every service card.
+- Do not make the entire section remain invisible if JavaScript fails.
+- Trigger the entrance once unless the rest of the website intentionally replays section entrances.
+- Keep the carousel’s normal service-change animation separate from the one-time section entrance.
+- If the website already has a shared reveal utility, use it rather than creating another one.
+
+RESPONSIVE BEHAVIOR
+
+Desktop — approximately 1200px and above
+- Keep the 37% / 63% left-right composition.
+- Featured card spans the two rows on the left.
+- Three or four smaller cards are arranged in the upper-right row.
+- The description appears beneath the smaller cards.
+- Keep the existing navigation/progress component centered under the main composition.
+- Maintain sufficient card width for readable service titles and icons.
+- Do not shrink card content just to fit more cards.
+
+Tablet — approximately 768px to 1199px
+- Re-evaluate the layout rather than simply scaling the desktop dimensions.
+- The featured card may use around 35–40% of the available width if the content remains readable.
+- The right region should retain enough width for the small cards. If three or four cards no longer fit comfortably, show fewer cards at once while keeping navigation behavior consistent.
+- Keep the description beneath the visible small-card row.
+- Reduce gaps only as needed.
+- Avoid forcing narrow cards with awkward text wrapping.
+- Keep the progress component centered relative to the full showcase.
+
+Mobile — below approximately 768px
+- Recompose the section for a narrow viewport; do not preserve the desktop grid if it harms readability.
+- Place the featured service first, followed by the service-card navigation area, then the description, with the existing progress component below the main content.
+- Depending on the available width, use a full-width featured card and a horizontal row of compact service cards that can be swiped, or a compact, accessible card selector.
+- If the small-card row is horizontally scrollable, use native overflow scrolling and ensure the active service is visible when selected. Avoid building a complex drag engine.
+- Do not allow the page itself to overflow horizontally.
+- Make arrow controls large enough to use comfortably on touch screens.
+- Keep service titles readable and avoid tiny text.
+- Ensure the description does not get clipped by a fixed-height container.
+- Do not let autoplay change content so quickly that a mobile visitor cannot read it.
+- Consider disabling autoplay on small screens if it harms usability, or retain it only when the section is visible and not being interacted with.
+- Preserve the existing progress component’s mobile styling rather than rebuilding it.
+- Test at 375px, 390px, and 430px viewport widths, as well as tablet and desktop sizes.
+
+ACCESSIBILITY
+- Use semantic section and heading elements.
+- Use actual buttons for previous/next controls.
+- Give controls accessible names.
+- Keep the active service understandable to screen readers, using suitable state attributes such as aria-current or aria-pressed where appropriate.
+- Ensure selecting cards works with keyboard input if the cards are interactive.
+- If cards are implemented as buttons, do not nest buttons inside buttons. Use a non-interactive card container with separate sibling controls, or another valid semantic structure.
+- If a card navigates to a destination page, use an anchor for that navigation and a separate button for carousel selection if both actions are needed.
+- Do not rely on color alone to indicate the selected card.
+- Respect prefers-reduced-motion by disabling or minimizing service-change transitions and disabling autoplay.
+- Pause automatic changes while keyboard focus is inside the component so users can finish interacting.
+- Do not move keyboard focus automatically when the active service changes.
+- Keep all service content accessible when animations are disabled.
+- Do not announce every autoplay change aggressively to screen readers. If an aria-live region is used for manually selected service updates, make its behavior deliberate and avoid noisy announcements during autoplay.
+
+PERFORMANCE REQUIREMENTS
+- Use CSS Grid/Flexbox for layout.
+- Use a single shared active-service state.
+- Do not recalculate the entire layout on every scroll frame.
+- Do not introduce an animation library solely for this component if CSS transitions are sufficient.
+- Avoid expensive filters, blur animations, large shadows, canvas, WebGL, or background video.
+- Animate opacity and transform wherever possible.
+- Keep the number of simultaneously animated elements small.
+- Use stable keys when rendering the service list.
+- Prevent layout shifts when titles, descriptions, or icons change.
+- Avoid unnecessary React state updates.
+- Clean up timeouts, observers, and listeners on unmount.
+- Avoid autoplay timers while the page is hidden or the section is out of view.
+- Ensure the section remains usable when autoplay is disabled or JavaScript animation is unavailable.
+
+EDGE CASES TO HANDLE
+- The service list has no items: render a safe empty state or omit the section according to existing project conventions.
+- The list has one item: hide or disable previous/next navigation and autoplay.
+- The active item is removed or the service data changes: ensure the selected index/ID remains valid.
+- The visitor clicks previous or next rapidly: prevent overlapping animations and ensure the final active item is correct.
+- The visitor manually selects a card while autoplay is about to advance: manual selection should win and the timer should reset.
+- The visitor changes service during a transition: handle the new selection without a flicker or stale content.
+- The section leaves the viewport: pause autoplay.
+- The tab becomes hidden: pause autoplay.
+- Reduced motion is enabled: remove or minimize transitions and disable autoplay.
+- The progress component is used: keep its active state and the service selection synchronized.
+- The visitor navigates past the first or last service: follow one consistent wraparound policy.
+
+TESTING AND ACCEPTANCE CRITERIA
+The section is complete only when all of the following are true:
+1. It resembles the supplied reference’s asymmetrical layout: one large card on the left, several smaller cards in the upper-right, and a description beneath them.
+2. It showcases BizzMate services rather than case studies or project stories.
+3. Most service cards use appropriate icons rather than large photos.
+4. The selected service appears in the featured card.
+5. Selecting a small service card changes the featured service and its description.
+6. The left arrow moves to the previous service.
+7. The right arrow moves to the next service.
+8. The navigation/progress component remains visually unchanged and is connected to the same active service state.
+9. Autoplay advances to the next service at a comfortable interval when allowed.
+10. Manual interaction resets the autoplay timer.
+11. Autoplay pauses when the section is not visible, the page is hidden, or the visitor is actively interacting.
+12. Service changes feel quick, smooth, and directional without a full-page transition.
+13. The outer grid does not jump or resize unnecessarily during service changes.
+14. No text or icon is clipped at common desktop, tablet, and mobile widths.
+15. No horizontal page overflow is introduced.
+16. Reduced-motion preferences are respected.
+17. Timers and observers are cleaned up correctly.
+18. No new dependencies are added without a clear reason.
+19. Existing site styles and unrelated sections remain unchanged.
+20. Relevant lint, type-check, build, and tests pass.
+
+DELIVERABLE
+Implement the actual component in the project, not just a static mockup.
+
+After implementation, report:
+- Files created or modified.
+- How the featured card, small cards, and description stay synchronized.
+- How the existing navigation/progress component was connected.
+- How autoplay works and when it pauses.
+- How the transition direction is determined for previous versus next navigation.
+- How responsive behavior differs across desktop, tablet, and mobile.
+- Any service icons, copy, or destination URLs that remain placeholders.
+- Which checks were run and whether they passed.
+
+FINAL INSTRUCTION
+Build the service showcase as one coherent, state-driven carousel composition. Match the reference’s hierarchy and asymmetric layout, but do not copy its case-study content. The featured card, smaller cards, description, arrow controls, autoplay, and existing progress component must all operate from one shared selection state. Keep service changes smooth and fast, keep the outer layout stable, and use the existing website design system without redefining colors, typography, or styling tokens.
+"""

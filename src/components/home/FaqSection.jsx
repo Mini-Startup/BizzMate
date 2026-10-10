@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { faqs } from "@/data/faqs";
-import { Plus } from "lucide-react";
+import { ChevronUp, ChevronDown, HelpCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export function FaqSection() {
@@ -13,90 +13,101 @@ export function FaqSection() {
   };
 
   return (
-    <section id="faqs" className="py-24 px-6 relative bg-white overflow-hidden">
-      <div className="max-w-4xl mx-auto relative z-10">
-        {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-20">
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
-            Straight Answers. <br />
-            <span className="text-brand-gradient">Zero Ambiguity.</span>
-          </h2>
-          <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-            Everything you need to know about our sprints, engineering standards, and direct founder collaboration.
-          </p>
-        </div>
+    <section
+      id="faqs"
+      aria-labelledby="faqs-heading"
+      className="py-20 lg:py-32 px-4 sm:px-6 md:px-8 lg:px-12 relative bg-white"
+    >
+      <div className="max-w-7xl mx-auto relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+          {/* ============================================================== */}
+          {/* LEFT COLUMN: Sticky Title & Description (No Pill Badge)        */}
+          {/* ============================================================== */}
+          <div className="lg:col-span-5 lg:sticky lg:top-32 self-start">
+            {/* Main Section Heading - aligned with top text of first question card */}
+            <h2
+              id="faqs-heading"
+              className="text-4xl sm:text-5xl lg:text-[3.5rem] font-extrabold text-neutral-900 tracking-tight font-sans leading-[1.08] mt-0 lg:mt-[1.85rem]"
+            >
+              Frequently asked <br />
+              <span className="text-brand-violet">questions</span>
+            </h2>
 
-        {/* Modern Sleek FAQ Accordion List */}
-        <div className="space-y-3">
-          {faqs.map((faq, idx) => {
-            const isOpen = openIndex === idx;
-            const numberFormatted = String(idx + 1).padStart(2, "0");
+            {/* Supporting description */}
+            <p className="text-neutral-600 text-sm sm:text-base leading-relaxed mt-6 max-w-sm sm:max-w-md font-sans">
+              Straightforward answers regarding our engineering sprints, architecture standards, code ownership, and direct technical founder collaboration. Zero corporate bureaucracy or middle-layer bottlenecks.
+            </p>
+          </div>
 
-            return (
-              <div
-                key={idx}
-                className={`rounded-2xl transition-all duration-300 border ${
-                  isOpen
-                    ? "bg-slate-50/80 border-purple-200 shadow-sm"
-                    : "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/40"
-                }`}
-              >
-                <button
-                  type="button"
-                  onClick={() => toggle(idx)}
-                  aria-expanded={isOpen}
-                  className="w-full py-5 px-6 sm:px-8 text-left flex items-start sm:items-center justify-between gap-4 cursor-pointer select-none group"
+          {/* ============================================================== */}
+          {/* RIGHT COLUMN: Interactive Accordion Cards                      */}
+          {/* ============================================================== */}
+          <div className="lg:col-span-7 space-y-4">
+            {faqs.map((faq, idx) => {
+              const isOpen = openIndex === idx;
+
+              return (
+                <div
+                  key={idx}
+                  className={`rounded-2xl sm:rounded-3xl transition-all duration-300 border ${
+                    isOpen
+                      ? "bg-[#f8fafc] border-neutral-300/80 shadow-xs"
+                      : "bg-[#f8fafc]/70 border-neutral-200/80 hover:border-neutral-300 hover:bg-[#f8fafc]"
+                  }`}
                 >
-                  <div className="flex items-start sm:items-center gap-4 sm:gap-6">
+                  {/* Card Trigger Button */}
+                  <button
+                    type="button"
+                    onClick={() => toggle(idx)}
+                    aria-expanded={isOpen}
+                    className="w-full py-5 sm:py-6 px-6 sm:px-8 text-left flex items-center justify-between gap-4 cursor-pointer select-none group"
+                  >
                     <span
-                      className={`text-xs font-mono font-bold transition-colors pt-0.5 sm:pt-0 ${
+                      className={`text-base sm:text-lg font-bold font-sans transition-colors ${
                         isOpen
-                          ? "text-[#a84bff]"
-                          : "text-slate-400 group-hover:text-slate-600"
-                      }`}
-                    >
-                      {numberFormatted}
-                    </span>
-                    <span
-                      className={`text-base sm:text-lg font-bold transition-colors ${
-                        isOpen
-                          ? "text-slate-900"
-                          : "text-slate-700 group-hover:text-slate-900"
+                          ? "text-neutral-900"
+                          : "text-neutral-800 group-hover:text-neutral-950"
                       }`}
                     >
                       {faq.question}
                     </span>
-                  </div>
 
-                  <div
-                    className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ${
-                      isOpen
-                        ? "bg-[#a84bff] text-white rotate-45 shadow-sm shadow-[#a84bff]/30"
-                        : "bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-900"
-                    }`}
-                  >
-                    <Plus className="w-4 h-4" />
-                  </div>
-                </button>
-
-                <AnimatePresence initial={false}>
-                  {isOpen && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                      className="overflow-hidden"
+                    {/* Circular Chevron Button (Violet with white arrow when open, lavender when closed) */}
+                    <div
+                      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 transition-all duration-200 ${
+                        isOpen
+                          ? "bg-brand-violet text-white shadow-xs"
+                          : "bg-brand-lavender text-brand-violet group-hover:bg-brand-violet group-hover:text-white"
+                      }`}
                     >
-                      <div className="px-6 sm:px-8 pb-6 pt-1 sm:pl-20 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-200/50">
-                        {faq.answer}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            );
-          })}
+                      {isOpen ? (
+                        <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
+                      )}
+                    </div>
+                  </button>
+
+                  {/* Expanded Content with Smooth Height Transition */}
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+                        className="overflow-hidden"
+                      >
+                        <div className="px-6 sm:px-8 pb-6 sm:pb-7 pt-0 text-neutral-600 text-sm sm:text-base leading-relaxed font-sans max-w-2xl">
+                          {faq.answer}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>
