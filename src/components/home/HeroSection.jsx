@@ -12,29 +12,27 @@ export function HeroSection() {
 
       {/* Main Full-Width Hero Stage */}
       <div className="w-full relative px-4 sm:px-8 md:px-10 lg:px-12 flex flex-col min-h-220 lg:min-h-235">
-        {/* 1. SPLIT DISPLAY HEADLINE (Your Business Vision / Our Digital Expertise) */}
-        <div className="relative z-10 w-full my-12 px-0">
+        {/* 1. SPLIT DISPLAY HEADLINE (Reference Match: Designed for TRUST top-aligned; Built for GROWTH starts at bottom line of TRUST) */}
+        <div className="relative z-10 w-full mt-10 sm:mt-12 mb-6 sm:mb-8 px-0">
           <div className="flex flex-col md:flex-row items-start justify-between w-full gap-4 md:gap-0">
-            {/* Left Headline: Your (top) + Business Vision (below) */}
-            <div className="flex flex-col text-left max-w-full md:max-w-[46%]">
-              <span className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold italic text-neutral-800 tracking-tight mb-1">
-                Your
+            {/* Left Headline: Designed for & TRUST share same top alignment line */}
+            <h1 className="flex items-start gap-2.5 sm:gap-3.5 flex-wrap text-left">
+              <span className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.6rem] xl:text-[3rem] font-black italic text-neutral-800 tracking-tight leading-none pt-1 sm:pt-1.5 md:pt-2">
+                Designed for
               </span>
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[4.75rem] 2xl:text-[5.25rem] font-black select-none font-sans text-transparent bg-clip-text bg-linear-to-r from-brand-violet via-brand-blue to-brand-sky drop-shadow-xs tracking-tight leading-[1.06]">
-                Business Vision
-              </h1>
-            </div>
+              <span className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[5.5rem] 2xl:text-[6.5rem] font-black uppercase tracking-tight leading-none select-none font-sans text-transparent bg-clip-text bg-linear-to-r from-brand-violet via-brand-blue to-brand-sky drop-shadow-xs">
+                TRUST
+              </span>
+            </h1>
 
-            {/* Right Headline: Our (top) + Digital Expertise (below) */}
-            <div className="flex flex-col text-left md:text-right md:items-end max-w-full md:max-w-[48%]">
-              <span className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold italic text-neutral-800 tracking-tight mb-1">
-                Our
+            {/* Right Headline: Built for & GROWTH share same top line, with top starting at bottom line of TRUST */}
+            <div className="flex items-start justify-start md:justify-end gap-2.5 sm:gap-3.5 flex-wrap text-left md:text-right">
+              <span className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.6rem] xl:text-[3rem] font-black italic text-neutral-800 tracking-tight leading-none pt-1 sm:pt-1.5 md:pt-2">
+                Built for
               </span>
-              <div className="inline-flex items-center gap-2">
-                <span className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[4.75rem] 2xl:text-[5.25rem] font-black select-none font-sans text-transparent bg-clip-text bg-linear-to-r from-brand-violet via-brand-blue to-brand-sky drop-shadow-xs tracking-tight leading-[1.06]">
-                  Digital Expertise
-                </span>
-              </div>
+              <span className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[5.5rem] 2xl:text-[6.5rem] font-black uppercase tracking-tight leading-none select-none font-sans text-transparent bg-clip-text bg-linear-to-r from-brand-violet via-brand-blue to-brand-sky drop-shadow-xs">
+                GROWTH
+              </span>
             </div>
           </div>
         </div>
@@ -60,10 +58,6 @@ export function HeroSection() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 lg:gap-14 relative z-30 items-center pointer-events-none">
               {/* LEFT STAGE CONTENT: Services Focus */}
               <div className="flex flex-col items-start gap-4 max-w-lg pointer-events-none">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-xs font-semibold pointer-events-none select-none">
-                  <Sparkles className="w-3.5 h-3.5 text-brand-sky" />
-                  <span>End-to-End Digital Engineering</span>
-                </div>
 
                 <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.6rem] font-extrabold text-white leading-[1.14] tracking-tight pointer-events-none select-none">
                   Digital Solutions That Move Businesses Forward
