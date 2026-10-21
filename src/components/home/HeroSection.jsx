@@ -12,33 +12,35 @@ export function HeroSection() {
 
       {/* Main Full-Width Hero Stage */}
       <div className="w-full relative px-4 sm:px-8 md:px-10 lg:px-12 flex flex-col min-h-220 lg:min-h-235">
-        {/* 1. SPLIT DISPLAY HEADLINE (Reference Match: Designed for TRUST top-aligned; Built for GROWTH starts at bottom line of TRUST) */}
+        {/* 1. SPLIT DISPLAY HEADLINE (Designed for TRUST / Built for ✦ GROWTH: Aligned horizontally, left-aligned) */}
         <div className="relative z-10 w-full mt-10 sm:mt-12 mb-6 sm:mb-8 px-0">
-          <div className="flex flex-col md:flex-row items-start justify-between w-full gap-4 md:gap-0">
-            {/* Left Headline: Designed for & TRUST share same top alignment line */}
-            <h1 className="flex items-start gap-2.5 sm:gap-3.5 flex-wrap text-left">
-              <span className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.6rem] xl:text-[3rem] font-black italic text-neutral-800 tracking-tight leading-none pt-1 sm:pt-1.5 md:pt-2">
+          <div className="flex flex-col md:flex-row items-start justify-between w-full gap-6 md:gap-0">
+            {/* Left Headline: Designed for (top) / TRUST (below with +95px indent) */}
+            <div className="flex flex-col items-start text-left max-w-full md:max-w-[46%]">
+              <span className="text-[29px] sm:text-[35px] md:text-[47px] lg:text-[59px] xl:text-[3.6875rem] font-black italic text-neutral-900 tracking-tight leading-none mb-1 sm:mb-2">
                 Designed for
               </span>
-              <span className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[5.5rem] 2xl:text-[6.5rem] font-black uppercase tracking-tight leading-none select-none font-sans text-transparent bg-clip-text bg-linear-to-r from-brand-violet via-brand-blue to-brand-sky drop-shadow-xs">
+              <h1 className="text-[59px] sm:text-[71px] md:text-[95px] lg:text-[127px] xl:text-[7.4375rem] 2xl:text-[8.4375rem] font-black uppercase tracking-tight leading-[0.92] select-none font-sans text-transparent bg-clip-text bg-linear-to-r from-brand-violet via-brand-blue to-brand-sky drop-shadow-xs ml-[95px]">
                 TRUST
-              </span>
-            </h1>
+              </h1>
+            </div>
 
-            {/* Right Headline: Built for & GROWTH share same top line, with top starting at bottom line of TRUST */}
-            <div className="flex items-start justify-start md:justify-end gap-2.5 sm:gap-3.5 flex-wrap text-left md:text-right">
-              <span className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.6rem] xl:text-[3rem] font-black italic text-neutral-800 tracking-tight leading-none pt-1 sm:pt-1.5 md:pt-2">
-                Built for
-              </span>
-              <span className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[5.5rem] 2xl:text-[6.5rem] font-black uppercase tracking-tight leading-none select-none font-sans text-transparent bg-clip-text bg-linear-to-r from-brand-violet via-brand-blue to-brand-sky drop-shadow-xs">
+            {/* Right Headline: Built for (top with -95px offset) / GROWTH (below) */}
+            <div className="flex flex-col items-start text-left max-w-full md:max-w-[46%]">
+              <div className="mb-1 sm:mb-2 -ml-[95px]">
+                <span className="text-[29px] sm:text-[35px] md:text-[47px] lg:text-[59px] xl:text-[3.6875rem] font-black italic text-neutral-900 tracking-tight leading-none">
+                  Built for
+                </span>
+              </div>
+              <div className="text-[59px] sm:text-[71px] md:text-[95px] lg:text-[127px] xl:text-[7.4375rem] 2xl:text-[8.4375rem] font-black uppercase tracking-tight leading-[0.92] select-none font-sans text-transparent bg-clip-text bg-linear-to-r from-brand-violet via-brand-blue to-brand-sky drop-shadow-xs">
                 GROWTH
-              </span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* 2. FULL-WIDTH 3D INTERACTIVE ROBOT CANVAS */}
-        <div className="absolute inset-x-0 -top-25 h-[660px] sm:h-[740px] md:h-[820px] z-20 flex items-center justify-center pointer-events-none">
+        {/* 2. FULL-WIDTH 3D INTERACTIVE ROBOT CANVAS (Shifted 30px left for visual center balance) */}
+        <div className="absolute inset-x-0 -top-25 h-[660px] sm:h-[740px] md:h-[820px] z-20 flex items-center justify-center pointer-events-none -translate-x-[30px]">
           <div className="w-full h-full">
             <Hero3DWrapper color="#ffffff" pantallaColor="#a84bff" scale={1.2} />
           </div>
@@ -60,7 +62,8 @@ export function HeroSection() {
               <div className="flex flex-col items-start gap-4 max-w-lg pointer-events-none">
 
                 <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.6rem] font-extrabold text-white leading-[1.14] tracking-tight pointer-events-none select-none">
-                  Digital Solutions That Move Businesses Forward
+                  Your Business Vision,
+                  <span className="block">Our Digital Solution</span>
                 </h2>
 
                 <p className="text-white/90 text-sm sm:text-base font-normal leading-relaxed max-w-md pointer-events-none">
