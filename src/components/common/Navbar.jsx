@@ -41,7 +41,7 @@ const featuredProjects = [
 
 const CUBIC_EASE = [0.16, 1, 0.3, 1];
 
-const SECTION_IDS = ["hero", "services", "why-us", "projects", "faqs"];
+const SECTION_IDS = ["hero", "services", "why-us", "projects", "faqs", "contact"];
 
 const NAV_ITEMS = [
   { id: "hero", label: "Home", href: "/" },
@@ -55,6 +55,7 @@ const NAV_ITEMS = [
   },
   // { id: "founders", label: "Founders", href: "/#founders" },
   { id: "faqs", label: "FAQs", href: "/#faqs" },
+  { id: "contact", label: "Contact", href: "/#contact" },
 ];
 
 export function Navbar() {
@@ -221,7 +222,7 @@ export function Navbar() {
       const isAtBottom =
         window.innerHeight + y >= document.documentElement.scrollHeight - 60;
       if (isAtBottom) {
-        current = "faqs";
+        current = "contact";
       } else {
         for (let i = SECTION_IDS.length - 1; i >= 0; i--) {
           const id = SECTION_IDS[i];

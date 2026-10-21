@@ -5,10 +5,12 @@ import { ContactForm } from "./ContactForm";
 export function CtaSection() {
   return (
     <section
-      id="cta"
+      id="contact"
       aria-labelledby="contact-heading"
       className="py-20 lg:py-28 px-4 sm:px-6 md:px-8 lg:px-12 relative bg-white overflow-hidden"
     >
+      {/* Anchor for backward compatibility with #cta links */}
+      <span id="cta" className="absolute -top-24" aria-hidden="true" />
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           {/* LEFT COLUMN: Eyebrow, Heading, Subtitle & Direct Contact Info (Static Server Rendered) */}

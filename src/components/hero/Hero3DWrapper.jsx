@@ -34,7 +34,7 @@ export function Hero3DWrapper({
   }, []);
 
   return (
-    <div className="w-full h-full relative pointer-events-none flex items-center justify-center">
+    <div className="w-full h-full relative flex items-center justify-center">
       {/* Fallback ambient glowing presence while canvas initializes */}
       <div
         className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full bg-brand-violet/10 blur-2xl pointer-events-none transition-opacity duration-700 ${

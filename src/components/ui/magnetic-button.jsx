@@ -61,7 +61,7 @@ export const MagneticButton = React.forwardRef(
     };
 
     const combinedClassName = cn(
-      "cursor-pointer select-none inline-flex items-center justify-center transition-shadow",
+      "cursor-pointer select-none inline-flex items-center justify-center transition-shadow will-change-transform",
       className
     );
 

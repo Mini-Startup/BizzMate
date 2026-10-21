@@ -2,7 +2,7 @@
 
 import React, { useMemo, useRef, useState, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment, ContactShadows } from "@react-three/drei";
+import { Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { useMounted } from "@/hooks/useMounted";
 
@@ -342,6 +342,7 @@ function RobotModel({
   pantallaColor = "#a84bff",
   pantallaBrillo = 1.3,
   blinkCycle = 3.2,
+  shadowRef,
   onReady,
 }) {
   const isLovedRef = useRef(false);
@@ -407,37 +408,35 @@ function RobotModel({
 
     const dt = Math.min(delta, 0.1);
 
-    const rawX = pointerRef.current.x;
-    const rawY = pointerRef.current.y;
+    const tx = pointerRef.current.x;
+    const ty = pointerRef.current.y;
 
-    // Strict Safe-Zone Clamping:
-    // Even if cursor rests at the extreme right/left edge of a wide screen,
-    // Math.tanh smoothly bounds displacement to a safe central corridor (±0.35 world units),
-    // guaranteeing the robot never drifts to the edge or overlaps headings/badges.
-    const MAX_SAFE_X = 0.35;
-    const MAX_SAFE_Y = 0.16;
+    // Strict Safe-Zone Clamping in X-axis:
+    // Keeps robot body within the safe central corridor (±0.38 world units)
+    // so it NEVER drifts to screen edges or overlaps headlines.
+    const MAX_SAFE_X = 0.38;
+    const targetPosX = Math.tanh(tx * 1.05) * MAX_SAFE_X;
 
-    const targetPosX = Math.tanh(rawX * 0.95) * MAX_SAFE_X;
-    const targetPosY = Math.tanh(rawY * 0.95) * MAX_SAFE_Y;
-
-    // Smooth delta-damped position
+    // Body position: moves ONLY in X axis, locked at -0.35 in Y axis
     bodyRef.current.position.x = THREE.MathUtils.damp(
       bodyRef.current.position.x,
       targetPosX,
-      3.5,
+      3.2,
       dt
     );
-    bodyRef.current.position.y = THREE.MathUtils.damp(
-      bodyRef.current.position.y,
-      -0.35 + targetPosY,
-      3.5,
-      dt
-    );
+    bodyRef.current.position.y = -0.35; // Locked strictly in Y axis
 
-    // Controlled subtle tilt angles (≤ 16° body, ≤ 22° head)
-    const bodyTargetRotY = -Math.tanh(rawX * 0.8) * 0.28;
-    const bodyTargetRotX = -Math.tanh(rawY * 0.8) * 0.12;
-    const bodyTargetRotZ = -Math.tanh(rawX * 0.8) * 0.08;
+    // Synchronously translate contact shadow along X with the robot body
+    if (shadowRef && shadowRef.current) {
+      shadowRef.current.position.x = bodyRef.current.position.x;
+    }
+
+    const relativeX = tx - bodyRef.current.position.x / 2.5;
+
+    // Natural responsive body tilt
+    const bodyTargetRotY = -relativeX * 0.75;
+    const bodyTargetRotX = -ty * 0.20;
+    const bodyTargetRotZ = -relativeX * 0.12;
 
     bodyRef.current.rotation.y = THREE.MathUtils.damp(
       bodyRef.current.rotation.y,
@@ -458,19 +457,21 @@ function RobotModel({
       dt
     );
 
-    const headTargetRotY = Math.tanh(rawX * 0.9) * 0.38;
-    const headTargetRotX = -Math.tanh(rawY * 0.9) * 0.20;
+    // Highly accurate, expressive head tracking: restores full original look range (yaw 1.6, pitch 0.38)
+    // Robot head turns accurately to track cursor in real-time
+    const headTargetRotY = relativeX * 1.6;
+    const headTargetRotX = -ty * 0.38;
 
     headRef.current.rotation.y = THREE.MathUtils.damp(
       headRef.current.rotation.y,
       headTargetRotY,
-      5.5,
+      6.0,
       dt
     );
     headRef.current.rotation.x = THREE.MathUtils.damp(
       headRef.current.rotation.x,
       headTargetRotX,
-      5.5,
+      6.0,
       dt
     );
   });
@@ -478,13 +479,31 @@ function RobotModel({
   const textures = useMemo(() => getPbrTextures(), []);
 
   const handlePointerDown = (e) => {
-    e.stopPropagation();
+    if (e && e.stopPropagation) e.stopPropagation();
     isLovedRef.current = true;
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
       isLovedRef.current = false;
     }, 2200);
   };
+
+  const handlePointerOver = (e) => {
+    if (e && e.stopPropagation) e.stopPropagation();
+    if (typeof document !== "undefined") document.body.style.cursor = "pointer";
+  };
+
+  const handlePointerOut = (e) => {
+    if (e && e.stopPropagation) e.stopPropagation();
+    if (typeof document !== "undefined") document.body.style.cursor = "auto";
+  };
+
+  useEffect(() => {
+    return () => {
+      if (typeof document !== "undefined") {
+        document.body.style.cursor = "auto";
+      }
+    };
+  }, []);
 
   const neckProfile = useMemo(() => {
     const points = [
@@ -514,15 +533,30 @@ function RobotModel({
       ref={bodyRef}
       position={[0, -0.35, 0]}
       onPointerDown={handlePointerDown}
-      onPointerOver={() => {
-        if (typeof document !== "undefined") document.body.style.cursor = "pointer";
-      }}
-      onPointerOut={() => {
-        if (typeof document !== "undefined") document.body.style.cursor = "auto";
-      }}
+      onClick={handlePointerDown}
+      onPointerOver={handlePointerOver}
+      onPointerOut={handlePointerOut}
     >
+      {/* Invisible Full-Body Hit Collider: guarantees 100% raycast coverage across entire white body, neck, and seams with zero dead zones */}
+      <mesh
+        onPointerDown={handlePointerDown}
+        onClick={handlePointerDown}
+        onPointerOver={handlePointerOver}
+        onPointerOut={handlePointerOut}
+      >
+        <sphereGeometry args={[0.48, 24, 24]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      </mesh>
+
       {/* Robot Torso - Optimized from 64x64 to 32x32 */}
-      <mesh castShadow receiveShadow>
+      <mesh
+        castShadow
+        receiveShadow
+        onPointerDown={handlePointerDown}
+        onClick={handlePointerDown}
+        onPointerOver={handlePointerOver}
+        onPointerOut={handlePointerOut}
+      >
         <sphereGeometry args={[0.43, 32, 32, 0, Math.PI * 2, Math.PI * 0.15, Math.PI * 0.85]} />
         <meshStandardMaterial
           color={color}
@@ -535,7 +569,14 @@ function RobotModel({
       </mesh>
 
       {/* Body Bevel Ring */}
-      <mesh position={[0, 0.34, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow receiveShadow>
+      <mesh
+        position={[0, 0.34, 0]}
+        rotation={[Math.PI / 2, 0, 0]}
+        castShadow
+        receiveShadow
+        onPointerDown={handlePointerDown}
+        onClick={handlePointerDown}
+      >
         <torusGeometry args={[0.235, 0.025, 16, 32]} />
         <meshStandardMaterial
           color={color}
@@ -548,7 +589,13 @@ function RobotModel({
       </mesh>
 
       {/* Neck Collar */}
-      <mesh position={[0, 0.38, 0]} receiveShadow castShadow>
+      <mesh
+        position={[0, 0.38, 0]}
+        receiveShadow
+        castShadow
+        onPointerDown={handlePointerDown}
+        onClick={handlePointerDown}
+      >
         <latheGeometry args={[neckProfile, 32]} />
         <meshStandardMaterial
           color={color}
@@ -565,8 +612,17 @@ function RobotModel({
         ref={headRef}
         position={[0, 0.6, 0]}
         onPointerDown={handlePointerDown}
+        onClick={handlePointerDown}
+        onPointerOver={handlePointerOver}
+        onPointerOut={handlePointerOut}
       >
-        <mesh material={headMat} castShadow receiveShadow>
+        <mesh
+          material={headMat}
+          castShadow
+          receiveShadow
+          onPointerDown={handlePointerDown}
+          onClick={handlePointerDown}
+        >
           <sphereGeometry args={[0.28, 32, 32, 0, Math.PI * 2, 0, Math.PI]} />
         </mesh>
 
@@ -600,6 +656,43 @@ function RobotModel({
   );
 }
 
+function RobotGroundShadow({ shadowRef }) {
+  const texture = useMemo(() => {
+    if (typeof document === "undefined") return null;
+    const canvas = document.createElement("canvas");
+    canvas.width = 128;
+    canvas.height = 128;
+    const ctx = canvas.getContext("2d");
+    const gradient = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gradient.addColorStop(0, "rgba(15, 23, 42, 0.45)");
+    gradient.addColorStop(0.25, "rgba(15, 23, 42, 0.28)");
+    gradient.addColorStop(0.55, "rgba(15, 23, 42, 0.08)");
+    gradient.addColorStop(1, "rgba(15, 23, 42, 0)");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 128, 128);
+    return new THREE.CanvasTexture(canvas);
+  }, []);
+
+  if (!texture) return null;
+
+  return (
+    <mesh
+      ref={shadowRef}
+      position={[0, -0.85, 0]}
+      rotation={[-Math.PI / 2, 0, 0]}
+      raycast={() => null}
+    >
+      <planeGeometry args={[1.5, 1.5]} />
+      <meshBasicMaterial
+        map={texture}
+        transparent
+        opacity={0.85}
+        depthWrite={false}
+      />
+    </mesh>
+  );
+}
+
 export function RobotCanvas({
   color = "#ffffff",
   pantallaColor = "#a84bff",
@@ -608,6 +701,7 @@ export function RobotCanvas({
 }) {
   const mounted = useMounted();
   const containerRef = useRef(null);
+  const shadowRef = useRef(null);
   const [inView, setInView] = useState(true);
   const [isTabVisible, setIsTabVisible] = useState(true);
 
@@ -650,7 +744,7 @@ export function RobotCanvas({
       aria-hidden="true"
       role="presentation"
       data-nosnippet="true"
-      className="w-full h-full relative pointer-events-none"
+      className="w-full h-full relative"
     >
       <Canvas
         aria-hidden="true"
@@ -680,19 +774,12 @@ export function RobotCanvas({
         <Environment preset="city" />
 
         <ResponsiveGroup scale={scale}>
-          <ContactShadows
-            position={[0, -0.85, 0]}
-            opacity={0.35}
-            scale={8}
-            resolution={128}
-            blur={1.8}
-            far={2.5}
-            color="#0f172a"
-            frames={1}
-          />
+          {/* Synchronously moving ground contact shadow locked directly beneath robot body */}
+          <RobotGroundShadow shadowRef={shadowRef} />
           <RobotModel
             color={color}
             pantallaColor={pantallaColor}
+            shadowRef={shadowRef}
             onReady={onReady}
           />
         </ResponsiveGroup>
