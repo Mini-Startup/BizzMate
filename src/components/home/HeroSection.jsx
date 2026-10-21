@@ -1,26 +1,16 @@
-"use client";
-
 import React from "react";
 import Link from "next/link";
-import dynamic from "next/dynamic";
-import { useMounted } from "@/hooks/useMounted";
 import {
   ArrowRight,
-  Bot,
   Zap,
   Lock,
   Users2,
   CheckCircle2,
 } from "lucide-react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
-
-// Dynamically load 3D RobotCanvas on client side only (SSR false)
-const RobotCanvas = dynamic(() => import("@/components/hero/RobotCanvas"), {
-  ssr: false,
-});
+import { Hero3DWrapper } from "@/components/hero/Hero3DWrapper";
 
 export function HeroSection() {
-  const mounted = useMounted();
 
   return (
     <section id="hero" className="relative w-full bg-white pt-8">
@@ -62,7 +52,7 @@ export function HeroSection() {
           className="absolute inset-x-0 -top-25 h-[660px] sm:h-[740px] md:h-[820px] z-20 pointer-events-none flex items-center justify-center"
         >
           <div className="w-full h-full">
-            {mounted && <RobotCanvas color="#ffffff" pantallaColor="#a84bff" scale={1.2} />}
+            <Hero3DWrapper color="#ffffff" pantallaColor="#a84bff" scale={1.2} />
           </div>
         </div>
 

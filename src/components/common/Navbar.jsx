@@ -611,7 +611,7 @@ export function Navbar() {
                             <Link
                               href="/projects"
                               onClick={() => {
-                                setActiveSection("projects");
+                                setLocalActiveSection("projects");
                                 setProjectsDropdownOpen(false);
                               }}
                               className="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold text-neutral-900 bg-neutral-50 hover:bg-brand-violet hover:text-white transition-all group shadow-xs"

@@ -1,7 +1,11 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { projects } from "@/data/projects";
+import {
+  getAllProjectSlugs,
+  getProjectBySlug,
+  getSimilarProjects,
+} from "@/lib/dal/projects";
 import { MotionFooter } from "@/components/common/MotionFooter";
 import { ProjectTimelineSection } from "@/components/projects/ProjectTimelineSection";
 import { ProjectCard } from "@/components/projects/ProjectCard";
@@ -16,15 +20,13 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-export function generateStaticParams() {
-  return projects.map((p) => ({
-    slug: p.slug,
-  }));
+export async function generateStaticParams() {
+  return getAllProjectSlugs();
 }
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const project = projects.find((p) => p.slug === slug);
+  const project = await getProjectBySlug(slug);
 
   if (!project) {
     return {
@@ -40,17 +42,14 @@ export async function generateMetadata({ params }) {
 
 export default async function ProjectDetailPage({ params }) {
   const { slug } = await params;
-  const project = projects.find((p) => p.slug === slug);
+  const project = await getProjectBySlug(slug);
 
   if (!project) {
     notFound();
   }
 
-  // Find up to 3 similar projects (prioritizing same category, excluding current)
-  const similarProjects = projects
-    .filter((p) => p.slug !== slug)
-    .sort((a, b) => (a.category === project.category ? -1 : 1))
-    .slice(0, 3);
+  // Find up to 3 similar projects using DAL
+  const similarProjects = await getSimilarProjects(slug, project.category, 3);
 
   // Table of Contents items with nested subtopics (depth: 1)
   const tocItems = [

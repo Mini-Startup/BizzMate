@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { OrbitCardStack } from "@/components/ui/orbit-card-stack";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useDeferredValue } from "react";
 import { projects } from "@/data/projects";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { Sparkles, Layers, Search, Filter } from "lucide-react";
@@ -18,6 +18,7 @@ const CATEGORIES = [
 export function ProjectsDirectory({ initialFilter = "All" }) {
   const [activeCategory, setActiveCategory] = useState(initialFilter);
   const [searchQuery, setSearchQuery] = useState("");
+  const deferredQuery = useDeferredValue(searchQuery);
 
   // Compute category counts
   const categoryCounts = useMemo(() => {
@@ -30,23 +31,22 @@ export function ProjectsDirectory({ initialFilter = "All" }) {
     return counts;
   }, []);
 
-  // Filter projects by category and search query
+  // Filter projects by category and deferred search query for non-blocking UI
   const filteredProjects = useMemo(() => {
+    const q = deferredQuery.trim().toLowerCase();
     return projects.filter((project) => {
       const matchesCategory =
         activeCategory === "All" || project.category === activeCategory;
       const matchesSearch =
-        searchQuery.trim() === "" ||
-        project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        project.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        project.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        project.tags.some((tag) =>
-          tag.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+        q === "" ||
+        project.title.toLowerCase().includes(q) ||
+        project.summary.toLowerCase().includes(q) ||
+        project.client.toLowerCase().includes(q) ||
+        project.tags.some((tag) => tag.toLowerCase().includes(q));
 
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, searchQuery]);
+  }, [activeCategory, deferredQuery]);
 
   return (
     <div className="w-full">

@@ -48,7 +48,8 @@ export default function RootLayout({ children }) {
       className={`${outfit.variable} ${jetbrainsMono.variable} ${plusJakartaSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-white text-slate-800 antialiased selection:bg-brand-violet/20 selection:text-brand-violet font-sans">
-        <SmoothFollower />
+        {/* Mouse cursor follower deactivated to eliminate compositing and animation lag - code preserved intact in SmoothFollower.jsx */}
+        {/* <SmoothFollower /> */}
         <Navbar />
         {children}
       </body>

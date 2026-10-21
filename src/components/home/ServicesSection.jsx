@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { services } from "@/data/services";
-import { motion, useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import {
   Globe,
   Cpu,
@@ -14,10 +14,9 @@ import {
   Sparkles,
   ArrowLeft,
   ArrowRight,
+  TrendingUp,
   Bookmark,
   Heart,
-  TrendingUp,
-  FileText,
 } from "lucide-react";
 
 const ICON_MAP = {
@@ -237,13 +236,11 @@ export function ServicesSection() {
 
               {/* Horizontal Slider Line */}
               <div className="w-32 sm:w-48 h-1.5 bg-neutral-200 rounded-full overflow-hidden relative">
-                <motion.div
-                  className="h-full bg-neutral-900 rounded-full"
-                  initial={false}
-                  animate={{
+                <div
+                  className="h-full bg-neutral-900 rounded-full transition-[width] duration-300 ease-out"
+                  style={{
                     width: `${((activeIndex + 1) / total) * 100}%`,
                   }}
-                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                 />
               </div>
 

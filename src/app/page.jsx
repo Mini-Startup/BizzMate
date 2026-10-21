@@ -1,10 +1,8 @@
 import { LoadingOrbScreen } from "@/components/common/LoadingOrbScreen";
-import { Navbar } from "@/components/common/Navbar";
 import { HeroSection } from "@/components/home/HeroSection";
 import { ServicesSection } from "@/components/home/ServicesSection";
 import { WhyChooseUsSection } from "@/components/home/WhyChooseUsSection";
 import { ProjectsShowcase } from "@/components/home/ProjectsShowcase";
-import { FoundersSection } from "@/components/home/FoundersSection";
 import { FaqSection } from "@/components/home/FaqSection";
 import { CtaSection } from "@/components/home/CtaSection";
 import { MotionFooter } from "@/components/common/MotionFooter";
@@ -23,7 +21,6 @@ export default function HomePage() {
         <ServicesSection />
         <WhyChooseUsSection />
         <ProjectsShowcase />
-        {/* <FoundersSection /> */}
         <FaqSection />
         <CtaSection />
       </main>
