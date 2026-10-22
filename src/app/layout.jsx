@@ -39,6 +39,8 @@ export const metadata = {
 };
 
 import { Navbar } from "@/components/common/Navbar";
+import { NavigationProvider } from "@/context/NavigationContext";
+import { ScrollToTop } from "@/components/common/ScrollToTop";
 
 export default function RootLayout({ children }) {
   return (
@@ -50,8 +52,11 @@ export default function RootLayout({ children }) {
       <body className="min-h-full flex flex-col bg-white text-slate-800 antialiased selection:bg-brand-violet/20 selection:text-brand-violet font-sans">
         {/* Mouse cursor follower deactivated to eliminate compositing and animation lag - code preserved intact in SmoothFollower.jsx */}
         {/* <SmoothFollower /> */}
-        <Navbar />
-        {children}
+        <NavigationProvider>
+          <Navbar />
+          {children}
+          <ScrollToTop />
+        </NavigationProvider>
       </body>
        {process.env.NODE_ENV === "development" && <Agentation />}
     </html>

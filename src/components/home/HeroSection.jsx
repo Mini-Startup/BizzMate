@@ -1,8 +1,8 @@
 import React from "react";
-import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { Hero3DWrapper } from "@/components/hero/Hero3DWrapper";
+import { HeroCtaCard } from "./HeroCtaCard";
 
 export function HeroSection() {
   return (
@@ -82,79 +82,9 @@ export function HeroSection() {
                 </div>
               </div>
 
-              {/* RIGHT STAGE CONTENT: Previous Work & Verified Impact */}
+              {/* RIGHT STAGE CONTENT: Quick Technical Diagnostic & Let's Talk CTA */}
               <div className="flex flex-col items-start md:items-end w-full md:pl-8 lg:pl-16 pointer-events-none">
-                <div className="w-full sm:w-[350px] md:w-[380px] bg-white rounded-3xl p-5 sm:p-6 shadow-2xl border border-white/60 text-neutral-900 flex flex-col gap-4 pointer-events-auto">
-                  {/* Card Header with Live Status */}
-                  <div className="flex items-center justify-between pb-2.5 border-b border-neutral-100">
-                    <div>
-                      <span className="text-[11px] font-bold text-brand-violet tracking-wider uppercase block">
-                        Proven Track Record
-                      </span>
-                      <h3 className="font-extrabold text-sm sm:text-base text-neutral-900">
-                        Featured Work & Results
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold shrink-0">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      <span>15+ Shipped</span>
-                    </div>
-                  </div>
-
-                  {/* Dual Metric Strip */}
-                  <div className="grid grid-cols-2 gap-2.5">
-                    <div className="bg-slate-50/90 rounded-2xl p-2.5 sm:p-3 border border-slate-100">
-                      <span className="text-xl sm:text-2xl font-black text-slate-900 block leading-tight">
-                        88%
-                      </span>
-                      <span className="text-[11px] text-slate-500 font-medium">
-                        Workflow Speedup
-                      </span>
-                    </div>
-                    <div className="bg-slate-50/90 rounded-2xl p-2.5 sm:p-3 border border-slate-100">
-                      <span className="text-xl sm:text-2xl font-black text-slate-900 block leading-tight">
-                        &lt;50ms
-                      </span>
-                      <span className="text-[11px] text-slate-500 font-medium">
-                        Sub-Second Latency
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Previous Work Spotlight Snippets */}
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 text-xs">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-brand-violet shrink-0" />
-                        <span className="font-bold text-slate-800">Nexus Core</span>
-                        <span className="text-slate-400 text-[11px] hidden sm:inline">· AI Automations</span>
-                      </div>
-                      <span className="text-[10px] font-semibold text-brand-violet bg-brand-violet/10 px-2 py-0.5 rounded-md">
-                        Enterprise
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 text-xs">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-brand-blue shrink-0" />
-                        <span className="font-bold text-slate-800">Strata Intel</span>
-                        <span className="text-slate-400 text-[11px] hidden sm:inline">· Web Analytics</span>
-                      </div>
-                      <span className="text-[10px] font-semibold text-brand-blue bg-brand-blue/10 px-2 py-0.5 rounded-md">
-                        Fintech
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* CTA: View Previous Work */}
-                  <Link
-                    href="/projects"
-                    className="w-full py-3 px-4 rounded-xl bg-brand-gradient hover:opacity-95 text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-md shadow-brand-violet/25 hover:shadow-lg transition-all group"
-                  >
-                    <span>View Previous Work</span>
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </Link>
-                </div>
+                <HeroCtaCard />
               </div>
             </div>
           </div>
@@ -163,3 +93,4 @@ export function HeroSection() {
     </section>
   );
 }
+

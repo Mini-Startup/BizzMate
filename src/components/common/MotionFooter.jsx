@@ -6,7 +6,8 @@ import Link from "next/link";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { MagneticButton } from "@/components/ui/magnetic-button";
-import { ArrowUp, Calendar, FolderGit2, Heart } from "lucide-react";
+import { Calendar, FolderGit2, Heart } from "lucide-react";
+import { useNavigation } from "@/context/NavigationContext";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -27,7 +28,17 @@ const MarqueeItem = () => (
   </div>
 );
 
+const FOOTER_NAV_ITEMS = [
+  { id: "hero", label: "Home", href: "/#hero" },
+  { id: "services", label: "Services", href: "/#services" },
+  { id: "why-us", label: "Why Us", href: "/#why-us" },
+  { id: "projects", label: "Projects", href: "/#projects" },
+  { id: "faqs", label: "FAQs", href: "/#faqs" },
+  { id: "contact", label: "Contact", href: "/#contact" },
+];
+
 export function MotionFooter() {
+  const { activeSection, navigateToSection } = useNavigation();
   const giantTextRef = useRef(null);
   const headingRef = useRef(null);
   const linksRef = useRef(null);
@@ -80,13 +91,10 @@ export function MotionFooter() {
     return () => ctx.revert();
   }, []);
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   return (
     <div
       ref={wrapperRef}
+      id="footer"
       className="relative h-screen w-full"
       style={{ clipPath: "polygon(0% 0, 100% 0%, 100% 100%, 0 100%)" }}
     >
@@ -130,8 +138,9 @@ export function MotionFooter() {
           <div ref={linksRef} className="flex flex-col items-center gap-6 w-full">
             <div className="flex flex-wrap justify-center gap-4 w-full">
               <MagneticButton
-                href="#cta"
-                className="px-8 md:px-10 py-4 md:py-5 rounded-full text-white font-bold text-sm md:text-base flex items-center gap-3 bg-brand-gradient shadow-xl shadow-[#a84bff]/30 hover:shadow-[#a84bff]/50"
+                href="#contact"
+                onClick={(e) => navigateToSection("contact", e)}
+                className="px-8 md:px-10 py-4 md:py-5 rounded-full text-white font-bold text-sm md:text-base flex items-center gap-3 bg-brand-gradient shadow-xl shadow-[#a84bff]/30 hover:shadow-[#a84bff]/50 cursor-pointer"
               >
                 <Calendar className="w-5 h-5 text-white" />
                 <span>Book Your Demo Today</span>
@@ -141,49 +150,26 @@ export function MotionFooter() {
                 href="/projects"
                 className="px-8 md:px-10 py-4 md:py-5 rounded-full text-slate-800 font-bold text-sm md:text-base flex items-center gap-3 bg-white/90 border border-slate-200 hover:border-slate-400 shadow-md hover:bg-white"
               >
-                <FolderGit2 className="w-5 h-5 text-[#266ac1]" />
+                <FolderGit2 className="w-5 h-5 text-brand-blue" />
                 <span>Explore All Projects</span>
               </MagneticButton>
             </div>
 
             {/* Quick Navigation Links */}
             <div className="flex flex-wrap justify-center gap-2.5 md:gap-4 w-full mt-2">
-              <Link
-                href="/#services"
-                className="px-5 py-2.5 rounded-full bg-white/70 border border-slate-200 text-slate-600 text-xs md:text-sm font-semibold hover:text-slate-900 hover:border-[#a84bff]/40 hover:bg-white transition-all shadow-xs"
-              >
-                Services
-              </Link>
-              <Link
-                href="/#problem"
-                className="px-5 py-2.5 rounded-full bg-white/70 border border-slate-200 text-slate-600 text-xs md:text-sm font-semibold hover:text-slate-900 hover:border-[#a84bff]/40 hover:bg-white transition-all shadow-xs"
-              >
-                The Problem
-              </Link>
-              <Link
-                href="/#why-us"
-                className="px-5 py-2.5 rounded-full bg-white/70 border border-slate-200 text-slate-600 text-xs md:text-sm font-semibold hover:text-slate-900 hover:border-[#a84bff]/40 hover:bg-white transition-all shadow-xs"
-              >
-                Why Choose Us
-              </Link>
-              {/* <Link
-                href="/#founders"
-                className="px-5 py-2.5 rounded-full bg-white/70 border border-slate-200 text-slate-600 text-xs md:text-sm font-semibold hover:text-slate-900 hover:border-[#a84bff]/40 hover:bg-white transition-all shadow-xs"
-              >
-                Founders
-              </Link> */}
-              <Link
-                href="/#faqs"
-                className="px-5 py-2.5 rounded-full bg-white/70 border border-slate-200 text-slate-600 text-xs md:text-sm font-semibold hover:text-slate-900 hover:border-[#a84bff]/40 hover:bg-white transition-all shadow-xs"
-              >
-                FAQs
-              </Link>
-              <Link
-                href="/projects"
-                className="px-5 py-2.5 rounded-full bg-white/70 border border-slate-200 text-slate-600 text-xs md:text-sm font-semibold hover:text-slate-900 hover:border-[#a84bff]/40 hover:bg-white transition-all shadow-xs"
-              >
-                Case Studies
-              </Link>
+              {FOOTER_NAV_ITEMS.map((item) => {
+                const isActive = activeSection === item.id;
+                return (
+                  <MagneticButton
+                    key={item.id}
+                    href={item.href}
+                    onClick={(e) => navigateToSection(item.id, e)}
+                    className={`px-5 py-2.5 rounded-full border text-xs md:text-sm font-semibold shadow-xs cursor-pointer bg-white/70 border-slate-200 text-slate-600 hover:text-slate-900 hover:border-brand-violet/40 hover:bg-white`}
+                  >
+                    {item.label}
+                  </MagneticButton>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -208,15 +194,6 @@ export function MotionFooter() {
               BizzMate
             </span>
           </div>
-
-          {/* Back to Top */}
-          <MagneticButton
-            onClick={scrollToTop}
-            aria-label="Back to top"
-            className="w-11 h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:border-slate-400 group order-3 shadow-xs"
-          >
-            <ArrowUp className="w-4 h-4 transform group-hover:-translate-y-1 transition-transform duration-300" />
-          </MagneticButton>
         </div>
       </footer>
     </div>
